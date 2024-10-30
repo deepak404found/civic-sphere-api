@@ -2,23 +2,15 @@ import { Router } from 'express'
 import { pgClient } from '../../conn'
 import { z } from 'zod'
 import { validateRequestBody } from '../../helpers/zodValidator'
+import { EmployeeSchema, IEmployee } from '../../schemas/employess'
+import { RoleAny, ValidateRole } from '../../auth/authValidator'
+import { UserRoleEnum } from '../../schemas/employess'
 
 const employeesRouter = Router()
 
-const EmployeeSchema = z.object({
-    username: z.string().min(4).max(12),
-    pass: z.string().min(8).max(12),
-    full_name: z.string().min(4).max(30).optional(),
-    email: z.string().email().optional(),
-    phone: z.string().min(10).max(12).optional(),
-    department: z.string()
-})
-
-employeesRouter.get('/emplyees_list', async (req, res) => {
+employeesRouter.get('/', RoleAny, async (req, res) => {
     try {
         const employees = await pgClient.query('SELECT * FROM employees')
-
-        console.log('res', employees.rows)
 
         res.status(200).json({
             message: 'employees fetched',
@@ -36,21 +28,20 @@ employeesRouter.get('/emplyees_list', async (req, res) => {
 
 employeesRouter.put('/add_employee', validateRequestBody(EmployeeSchema), async (req, res) => {
     try {
-        const newEmployee = req.body as z.infer<typeof EmployeeSchema>
-        console.log(newEmployee, 'body')
+        const newEmployee = req.body as IEmployee
 
         const addEmployeeQuery = {
-            text: `INSERT INTO employees(username, pass, full_name, email, phone, department)
-            VALUES ($1, crypt($2, gen_salt('bf')), $3, $4, $5, $6)`,
-            values: [newEmployee.username, newEmployee.pass, newEmployee.full_name, newEmployee.email, newEmployee.phone, newEmployee.department]
+            text: `INSERT INTO employees(username, pass, full_name, email, phone, department, role)
+            VALUES ($1, crypt($2, gen_salt('bf')), $3, $4, $5, $6, $7) RETURNING *`,
+            values: [newEmployee.username, newEmployee.pass, newEmployee.full_name, newEmployee.email, newEmployee.phone, newEmployee.department, newEmployee.role]
         }
 
         const result = await pgClient.query(addEmployeeQuery)
-        console.log('result', result)
+        // console.log('result', result)
 
         res.status(200).json({
             message: 'added employee',
-            payload: result.rows
+            payload: result.rows[0]
         })
     } catch (err) {
         console.log('error ocuured: ', err)
