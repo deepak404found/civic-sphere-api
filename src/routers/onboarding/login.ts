@@ -3,27 +3,31 @@ import { z } from 'zod'
 import { pgClient } from '../../conn'
 import { GenerateJWT } from '../../auth/authValidator'
 import { errorHandler, ForbiddenError } from '../../helpers/errorHandler'
+import { UserRoleEnum } from '../../schemas/employess'
+import { validateRequestBody } from '../../helpers/zodValidator'
 
 const loginRouter = Router()
 
 const LoginSchema = z.object({
     username: z.string().min(4).max(12),
-    pass: z.string().min(8).max(12),
-    department: z.string()
+    pass: z.string().min(8).max(20),
+    department: z.string(),
+    role: z.nativeEnum(UserRoleEnum)
 })
 
-loginRouter.post('/login', async (req, res) => {
+loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) => {
     try {
         const loginData = req.body as z.infer<typeof LoginSchema>
+        // console.log('loginData', loginData)
 
         const loginQuery = {
-            text: `SELECT * FROM employees WHERE username = $1 AND pass = crypt($2, pass) AND department = $3`,
-            values: [loginData.username, loginData.pass, loginData.department]
+            text: `SELECT * FROM employees WHERE username = $1 AND pass = crypt($2, pass) AND department = $3 AND role = $4`,
+            values: [loginData.username, loginData.pass, loginData.department, loginData.role]
         }
 
         const result = await pgClient.query(loginQuery)
 
-        if (result.rowCount === 0) throw new ForbiddenError('Invalid username or password')
+        if (result.rowCount === 0) throw new ForbiddenError('Invalid Credentials')
 
         // generate token and send it back
         const token = GenerateJWT({ username: loginData.username, department: loginData.department })

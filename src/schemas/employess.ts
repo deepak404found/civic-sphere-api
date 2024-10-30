@@ -15,10 +15,14 @@ export enum UserRoleEnum {
 
 export const EmployeeSchema = z.object({
     username: z.string().min(4).max(12),
-    pass: z.string().min(8).max(12),
     full_name: z.string().min(4).max(30).optional(),
     email: z.string().email().optional(),
     phone: z.string().min(10).max(12).optional(),
-    role: z.nativeEnum(UserRoleEnum),
+    role: z.enum([UserRoleEnum.ADMIN, UserRoleEnum.EMPLOYEE]),
     department: z.string()
+})
+
+// add scema with password
+export const AddEmployeeSchema = EmployeeSchema.extend({
+    pass: z.string().min(8).max(20)
 })
