@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 export type IEmployee = z.infer<typeof EmployeeSchema>
 
+export type IAddEmployee = z.infer<typeof AddEmployeeSchema>
+
 export type IPartialEmployee = {
     username?: string
     department?: string

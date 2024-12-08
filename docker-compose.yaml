@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    restart: always
+
+    environment:
+      - POSTGRESQL_USERNAME=dbadmin
+      - POSTGRESQL_PASSWORD=admin@123
+      - POSTGRESQL_DATABASE=chips
+    volumes:
+      - ./dataset:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
