@@ -1,13 +1,13 @@
-import jwt from 'jsonwebtoken'
-import { vars } from '../env'
 import { RequestHandler } from 'express'
-import { pgClient } from '../conn'
-import { IPartialEmployee, UserRoleEnum } from '../schemas/employess'
-import { errorHandler, ForbiddenError, UnauthorizedError } from '../helpers/errorHandler'
-import { logger } from '../helpers/logger'
+import jwt from 'jsonwebtoken'
+import { db } from '../conn'
+import { UserRoleEnum } from '../db/schema/employees.schema'
+import { vars } from '../env'
+import { errorHandler, UnauthorizedError } from '../helpers/errorHandler'
 
 export type TokenData = {
-    username: string
+    email: string
+    role: UserRoleEnum
     department: string
     iat: number
     exp: number
@@ -15,6 +15,12 @@ export type TokenData = {
 
 export type TokenError = {
     name: 'TokenExpiredError' | 'JsonWebTokenError' | 'NotBeforeError'
+}
+
+export type IPartialEmployee = {
+    email?: string
+    department?: string
+    role?: UserRoleEnum
 }
 
 export type TokenResult = TokenData | TokenError
@@ -64,16 +70,23 @@ export const ValidateRole = (role: UserRoleEnum[]): RequestHandler => {
                 throw new UnauthorizedError(tokenResults.name)
             }
 
-            // logger.info('tokenResults', tokenResults)
-
-            // get employee role from db
-            const employee = await pgClient.query('SELECT role FROM employees WHERE username = $1', [tokenResults.username])
-
-            if (!role.includes(employee.rows[0].role)) {
-                throw new ForbiddenError(`${role} role is required for this route`)
+            // check if the role is in the list of allowed roles
+            if (!role.includes(tokenResults.role)) {
+                throw new UnauthorizedError('Invalid Role')
             }
 
-            res.locals.employee = employee.rows[0]
+            // query the db for the employee
+            const employee = await db.query.employees.findFirst({
+                where: (employees, { eq }) => eq(employees.email, tokenResults.email)
+            })
+
+            if (!employee) {
+                throw new UnauthorizedError('Invalid Token')
+            }
+
+            // set the employee in the request object
+            res.locals.employee = employee
+
             next()
         } catch (error) {
             // console.log(error)

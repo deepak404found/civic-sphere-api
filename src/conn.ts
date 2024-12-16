@@ -1,8 +1,9 @@
-import { Client } from 'pg'
-import { vars } from './env'
 import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
+import { employeesTable } from './db/schema/employees.schema'
+import { vars } from './env'
 
-export const pgClient = new Client({
+export const pgClient = new Pool({
     user: vars.PG_USER,
     host: vars.PG_HOST,
     database: vars.PG_DATABASE,
@@ -11,5 +12,9 @@ export const pgClient = new Client({
 })
 
 export const db = drizzle({
-    client: pgClient
+    client: pgClient,
+    logger: vars.ENABLE_PG_LOG,
+    schema: {
+        employees: employeesTable
+    }
 })

@@ -1,29 +1,27 @@
 import { Router } from 'express'
-import { db, pgClient } from '../../conn'
-import { z } from 'zod'
-import { validateRequestBody } from '../../helpers/zodValidator'
-import { AddEmployeeSchema, EmployeeSchema, IAddEmployee, IEmployee } from '../../schemas/employess'
 import { RoleAny, ValidateRole } from '../../auth/authValidator'
-import { UserRoleEnum } from '../../schemas/employess'
-import { logger } from '../../helpers/logger'
-import { errorHandler, NotFoundError } from '../../helpers/errorHandler'
-import { employeesTable } from '../../db/schema/employees.schema'
-import { sql } from 'drizzle-orm'
+import { db } from '../../conn'
+import { insertEmployee } from '../../controllers/employees'
+import {
+    employeeSchema,
+    employeesTable,
+    IAddEmployee,
+    insertEmployeeSchema,
+    IUpdateEmployee,
+    updateEmployeeSchema,
+    UserRoleEnum
+} from '../../db/schema/employees.schema'
+import { BadRequestError, errorHandler } from '../../helpers/errorHandler'
+import { validateRequestBody } from '../../helpers/zodValidator'
+import { eq } from 'drizzle-orm'
 
 const employeesRouter = Router()
 
-employeesRouter.get('/', async (req, res) => {
+employeesRouter.get('/', RoleAny, async (req, res) => {
     try {
-        // const employees = await pgClient.query('SELECT * FROM employees')
-
-        // // remove pass from response
-        // employees.rows = employees.rows.map((employee) => {
-        //     delete employee.pass
-        //     return employee
-        // })
-
-        const employees = await db.select().from(employeesTable)
-        console.log('employees', employees)
+        const employees = (await db.query.employees.findMany())?.map((employee) => {
+            return employeeSchema.parse(employee)
+        })
 
         res.status(200).json({
             message: 'employees fetched',
@@ -39,25 +37,19 @@ employeesRouter.get('/', async (req, res) => {
     }
 })
 
-employeesRouter.get('/:username', RoleAny, async (req, res) => {
+employeesRouter.get('/:uid', RoleAny, async (req, res) => {
     try {
-        const { username } = req.params
+        const { uid } = req.params
 
-        const employee = await pgClient.query('SELECT * FROM employees WHERE username = $1', [username])
-
-        if (employee.rowCount === 0) {
-            throw new NotFoundError('Employee not found')
-        }
-
-        // remove pass from response
-        employee.rows = employee.rows.map((employee) => {
-            delete employee.pass
-            return employee
+        const employee = await db.query.employees.findFirst({
+            where: (employees, { eq }) => eq(employees.id, uid)
         })
+
+        if (!employee) throw new BadRequestError('Employee not found')
 
         res.status(200).json({
             message: 'employee fetched',
-            payload: employee.rows[0]
+            payload: employeeSchema.parse(employee)
         })
     } catch (error) {
         const toReturn = errorHandler(error)
@@ -70,48 +62,24 @@ employeesRouter.get('/:username', RoleAny, async (req, res) => {
 
 employeesRouter.put(
     '/add_employee',
-    // ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]),
-    validateRequestBody(AddEmployeeSchema),
+    ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]),
+    validateRequestBody(insertEmployeeSchema),
     async (req, res) => {
         try {
-            // const newEmployee = req.body as z.infer<typeof AddEmployeeSchema>
-
-            // const addEmployeeQuery = {
-            //     text: `INSERT INTO employees(username, pass, full_name, email, phone, department, role)
-            // VALUES ($1, crypt($2, gen_salt('bf')), $3, $4, $5, $6, $7) RETURNING *`,
-            //     values: [
-            //         newEmployee.username,
-            //         newEmployee.pass,
-            //         newEmployee.full_name,
-            //         newEmployee.email,
-            //         newEmployee.phone,
-            //         newEmployee.department,
-            //         newEmployee.role
-            //     ]
-            // }
-
-            // const result = await pgClient.query(addEmployeeQuery)
-            // console.log('result', result)
-
             const newEmployee = req.body as IAddEmployee
 
-            // await db.execute(sql`CREATE EXTENSION IF NOT EXISTS pgcrypto;`)
-            console.log('newEmployee', newEmployee)
-
-            const result = await db.insert(employeesTable).values({
-                username: newEmployee.username as string,
-                pass: sql`crypt(${newEmployee.pass}, gen_salt('bf'))`, // Encrypt the password
-                // full_name: newEmployee.full_name,
-                // email: newEmployee.email,
-                // phone: newEmployee.phone,
-                department: newEmployee.department as string,
-                role: newEmployee.role as string
+            // check if employee already exists by email
+            const checkEmployeeQuery = await db.query.employees.findFirst({
+                where: (employees, { eq }) => eq(employees.email, newEmployee.email)
             })
-            console.log('result', result)
+            if (checkEmployeeQuery) throw new BadRequestError('Employee already exists')
+
+            const result = await insertEmployee(newEmployee)
+            // console.log('result', result)
 
             res.status(200).json({
-                message: 'added employee'
-                // payload: result.rows[0]
+                message: 'added employee',
+                payload: result
             })
         } catch (err) {
             const toReturn = errorHandler(err)
@@ -123,21 +91,21 @@ employeesRouter.put(
     }
 )
 
-employeesRouter.delete('/delete_employee/:username', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]), async (req, res) => {
+employeesRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]), async (req, res) => {
     try {
-        const { username } = req.params
+        const { uid } = req.params
 
-        const deleteEmployeeQuery = {
-            text: `DELETE FROM employees WHERE username = $1 RETURNING *`,
-            values: [username]
-        }
+        const employee = await db.query.employees.findFirst({
+            where: (employees, { eq }) => eq(employees.id, uid)
+        })
 
-        const result = await pgClient.query(deleteEmployeeQuery)
-        // console.log('result', result)
+        if (!employee) throw new BadRequestError('Employee not found')
+
+        const result = await db.delete(employeesTable).where(eq(employeesTable.id, uid)).returning()
 
         res.status(200).json({
             message: 'deleted employee',
-            payload: result.rows[0]
+            payload: employeeSchema.parse(result[0])
         })
     } catch (err) {
         const toReturn = errorHandler(err)
@@ -147,5 +115,37 @@ employeesRouter.delete('/delete_employee/:username', ValidateRole([UserRoleEnum.
         })
     }
 })
+
+// update employee
+employeesRouter.patch(
+    '/:uid',
+    ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]),
+    validateRequestBody(updateEmployeeSchema),
+    async (req, res) => {
+        try {
+            const { uid } = req.params
+            const updatedEmployee = req.body as IUpdateEmployee
+
+            const employee = await db.query.employees.findFirst({
+                where: (employees, { eq }) => eq(employees.id, uid)
+            })
+
+            if (!employee) throw new BadRequestError('Employee not found')
+
+            const result = await db.update(employeesTable).set(updatedEmployee).where(eq(employeesTable.id, uid)).returning()
+
+            res.status(200).json({
+                message: 'updated employee',
+                payload: employeeSchema.parse(result[0])
+            })
+        } catch (err) {
+            const toReturn = errorHandler(err)
+            res.status(toReturn.code).json({
+                message: toReturn.message,
+                name: toReturn.name
+            })
+        }
+    }
+)
 
 export default employeesRouter

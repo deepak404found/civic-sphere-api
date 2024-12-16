@@ -1,41 +1,50 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { pgClient } from '../../conn'
 import { GenerateJWT } from '../../auth/authValidator'
+import { db } from '../../conn'
+import { verifyPassword } from '../../controllers/employees'
+import { employeeSchema, insertEmployeeSchema } from '../../db/schema/employees.schema'
 import { errorHandler, ForbiddenError } from '../../helpers/errorHandler'
-import { UserRoleEnum } from '../../schemas/employess'
 import { validateRequestBody } from '../../helpers/zodValidator'
 
 const loginRouter = Router()
 
-const LoginSchema = z.object({
-    username: z.string().min(4).max(12),
-    pass: z.string().min(8).max(20),
-    department: z.string(),
-    role: z.nativeEnum(UserRoleEnum)
+// const LoginSchema = z.object({
+//     username: z.string().min(4).max(12),
+//     pass: z.string().min(8).max(20),
+//     department: z.string(),
+//     role: z.nativeEnum(UserRoleEnum)
+// })
+
+const LoginSchema = insertEmployeeSchema.pick({
+    email: true,
+    pass: true,
+    department: true,
+    role: true
 })
 
 loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) => {
     try {
         const loginData = req.body as z.infer<typeof LoginSchema>
-        // console.log('loginData', loginData)
 
-        const loginQuery = {
-            text: `SELECT * FROM employees WHERE username = $1 AND pass = crypt($2, pass) AND department = $3 AND role = $4`,
-            values: [loginData.username, loginData.pass, loginData.department, loginData.role]
-        }
+        const result = await db.query.employees.findFirst({
+            where: (employees, { eq, and }) =>
+                and(
+                    eq(employees.email, loginData.email),
+                    eq(employees.department, loginData.department),
+                    eq(employees.role, loginData.role)
+                )
+        })
 
-        const result = await pgClient.query(loginQuery)
+        const validPass = await verifyPassword(loginData.pass, result?.pass || '')
+        if (!result || !validPass) throw new ForbiddenError('Invalid Credentials')
 
-        if (result.rowCount === 0) throw new ForbiddenError('Invalid Credentials')
-
-        // generate token and send it back
-        const token = GenerateJWT({ username: loginData.username, department: loginData.department })
+        const token = GenerateJWT({ email: loginData.email, department: loginData.department, role: loginData.role })
 
         res.status(200).json({
             message: 'logged in',
             token,
-            user: result.rows[0]
+            user: employeeSchema.parse(result)
         })
     } catch (error) {
         // console.log(error)

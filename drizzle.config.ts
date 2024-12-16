@@ -6,6 +6,8 @@ export default defineConfig({
     schema: './src/db/**/*.schema.ts',
     // driver: 'pglite',
     out: './drizzle',
+    verbose: true,
+    strict: true,
     dbCredentials: {
         user: vars.PG_USER,
         host: vars.PG_HOST,

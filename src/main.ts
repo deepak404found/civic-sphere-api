@@ -7,8 +7,8 @@ import { sql } from 'drizzle-orm'
 async function main() {
     console.log('Starting server...')
 
-    app.listen(vars.PROT, () => {
-        logger.info(`Server running on: http://localhost:${vars.PROT} 🚀`)
+    app.listen(vars.PORT, () => {
+        logger.info(`Server running on: http://localhost:${vars.PORT} 🚀`)
     }).on('error', (err) => {
         logger.error('Error starting server', err)
         process.exit(1)
