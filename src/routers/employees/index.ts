@@ -14,6 +14,7 @@ import {
 import { BadRequestError, errorHandler } from '../../helpers/errorHandler'
 import { validateRequestBody } from '../../helpers/zodValidator'
 import { eq } from 'drizzle-orm'
+import { fetchDepartmentByName } from '../../controllers/departments'
 
 const employeesRouter = Router()
 
@@ -131,6 +132,20 @@ employeesRouter.patch(
             })
 
             if (!employee) throw new BadRequestError('Employee not found')
+
+            // check if employee already exists by email if email is being updated
+            if (updatedEmployee.email) {
+                const checkEmployeeQuery = await db.query.employees.findFirst({
+                    where: (employees, { eq }) => eq(employees.email, updatedEmployee.email as string)
+                })
+                if (checkEmployeeQuery) throw new BadRequestError('This email is already in use')
+            }
+
+            // ftech department
+            if (updatedEmployee.department) {
+                const department = await fetchDepartmentByName(updatedEmployee.department as string)
+                updatedEmployee.department = department.id
+            }
 
             const result = await db.update(employeesTable).set(updatedEmployee).where(eq(employeesTable.id, uid)).returning()
 

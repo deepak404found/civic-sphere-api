@@ -3,37 +3,42 @@ import { z } from 'zod'
 import { GenerateJWT } from '../../auth/authValidator'
 import { db } from '../../conn'
 import { verifyPassword } from '../../controllers/employees'
-import { employeeSchema, insertEmployeeSchema } from '../../db/schema/employees.schema'
-import { errorHandler, ForbiddenError } from '../../helpers/errorHandler'
+import { employeeSchema, insertEmployeeSchema, UserRoleEnum } from '../../db/schema/employees.schema'
+import { errorHandler, ForbiddenError, NotFoundError } from '../../helpers/errorHandler'
 import { validateRequestBody } from '../../helpers/zodValidator'
 
 const loginRouter = Router()
 
-// const LoginSchema = z.object({
-//     username: z.string().min(4).max(12),
-//     pass: z.string().min(8).max(20),
-//     department: z.string(),
-//     role: z.nativeEnum(UserRoleEnum)
-// })
-
-const LoginSchema = insertEmployeeSchema.pick({
-    email: true,
-    pass: true,
-    department: true,
-    role: true
-})
+const LoginSchema = insertEmployeeSchema
+    .pick({
+        email: true,
+        pass: true,
+        department: true,
+        role: true
+    })
+    .extend({
+        role: z.nativeEnum(UserRoleEnum)
+    })
 
 loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) => {
     try {
         const loginData = req.body as z.infer<typeof LoginSchema>
 
+        // fetch department from db by name
+        const deptId = await db.query.departments
+            .findFirst({
+                where: (departments, { eq }) => eq(departments.name, loginData.department)
+            })
+            .then((res) => res?.id)
+
+        // if department not found, throw error
+        if (!deptId) throw new NotFoundError('Department not found')
+
+        console.log('deptId', deptId, loginData)
+
         const result = await db.query.employees.findFirst({
             where: (employees, { eq, and }) =>
-                and(
-                    eq(employees.email, loginData.email),
-                    eq(employees.department, loginData.department),
-                    eq(employees.role, loginData.role)
-                )
+                and(eq(employees.email, loginData.email), eq(employees.department, deptId), eq(employees.role, loginData.role))
         })
 
         const validPass = await verifyPassword(loginData.pass, result?.pass || '')

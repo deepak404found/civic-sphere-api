@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 import { db } from '../conn'
 import { employeeSchema, employeesTable, IAddEmployee } from '../db/schema/employees.schema'
+import { NotFoundError } from '../helpers/errorHandler'
+import { fetchDepartmentByName } from './departments'
 
 // Hash password utility
 export async function hashPassword(password: string): Promise<string> {
@@ -24,10 +26,13 @@ export async function insertEmployee(data: IAddEmployee) {
     // Hash the password before inserting
     const hashedPassword = await hashPassword(data.pass)
 
+    // Fetch the department id
+    const department = await fetchDepartmentByName(data.department)
+
     // Insert into the database with the hashed password and return the result
     const employee = await db
         .insert(employeesTable)
-        .values({ ...data, pass: hashedPassword })
+        .values({ ...data, pass: hashedPassword, department: department.id })
         .returning()
         .catch((err) => {
             console.error(err)

@@ -1,6 +1,7 @@
 import { pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod'
 import { z } from 'zod'
+import { departmentsTable } from './departments.schema'
 
 export enum UserRoleEnum {
     SUPER_ADMIN = 'super_admin',
@@ -14,7 +15,7 @@ export const employeesTable = pgTable('employees', {
     email: varchar('email', { length: 255 }).notNull(),
     phone: varchar('phone', { length: 12 }),
     role: varchar('role', { length: 15 }).notNull(),
-    department: varchar('department', { length: 30 }).notNull(),
+    department: uuid('department').references(() => departmentsTable.id),
     pass: varchar('pass', { length: 60 }).notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow()
 })
