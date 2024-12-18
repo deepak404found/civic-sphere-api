@@ -5,6 +5,7 @@ import { departmentsTable } from './db/schema/departments.schema'
 import { employeesTable } from './db/schema/employees.schema'
 import { vars } from './env'
 import { logger } from './helpers/logger'
+import swaggerDocs from './helpers/swagger'
 
 const createSuperAdmin = async () => {
     try {
@@ -65,6 +66,8 @@ async function main() {
 
     app.listen(vars.PORT, () => {
         logger.info(`Server running on: http://localhost:${vars.PORT} 🚀`)
+
+        swaggerDocs(app, vars.PORT)
     }).on('error', (err) => {
         logger.error('Error starting server', err)
         process.exit(1)

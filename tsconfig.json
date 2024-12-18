@@ -10,6 +10,7 @@
     "allowJs": true,
     "moduleResolution": "node",
     "removeComments": true,
+    "resolveJsonModule": true
   },
   "exclude": ["./graphql.config.ts"]
 }

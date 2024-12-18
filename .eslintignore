@@ -1,2 +1,4 @@
 node_modules
 jest.config.ts
+# all openai.yml files in ./src/routers
+src/routers/**/openapi.yml

@@ -1,0 +1,9 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/yamllint.json": [
+            "file:///home/dk404/projects/practice/chips-onboarding/src/routers/onboarding/onboarding.openapi.yaml",
+            "file:///home/dk404/projects/practice/chips-onboarding/src/routers/index.openapi.yaml",
+            "file:///home/dk404/projects/practice/chips-onboarding/src/routers/employees/employees.openapi.yaml"
+        ]
+    }
+}

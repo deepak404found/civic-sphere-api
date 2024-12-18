@@ -1,0 +1,88 @@
+paths:
+  /healthcheck:
+    get:
+      summary: Healthcheck
+      description: Responds if the app is up and running
+      responses:
+        200:
+          description: App is up and running
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthcheckBody"
+
+components:
+  schemas:
+    HealthcheckBody:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A message to indicate the health of the service
+      example:
+        message: Service is healthy
+
+    InternalServerError:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the error
+        message:
+          type: string
+          description: A message to indicate the error
+      example:
+        name: InternalServerError
+        message: Something went wrong
+
+    UnauthorizedError:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the error
+        message:
+          type: string
+          description: A message to indicate the error
+      example:
+        name: UnauthorizedError
+        message: Unauthorized
+
+    NotFoundError:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the error
+        message:
+          type: string
+          description: A message to indicate the error
+      example:
+        name: NotFoundError
+        message: Resource not found
+
+    BadRequestError:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the error
+        message:
+          type: string
+          description: A message to indicate the error
+      example:
+        name: BadRequestError
+        message: Invalid input
+
+    ForbiddenError:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the error
+        message:
+          type: string
+          description: A message to indicate the error
+      example:
+        name: ForbiddenError
+        message: Forbidden

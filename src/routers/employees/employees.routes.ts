@@ -11,7 +11,7 @@ import {
     updateEmployeeSchema,
     UserRoleEnum
 } from '../../db/schema/employees.schema'
-import { BadRequestError, errorHandler } from '../../helpers/errorHandler'
+import { BadRequestError, errorHandler, NotFoundError } from '../../helpers/errorHandler'
 import { validateRequestBody } from '../../helpers/zodValidator'
 import { eq } from 'drizzle-orm'
 import { fetchDepartmentByName } from '../../controllers/departments'
@@ -26,8 +26,10 @@ employeesRouter.get('/', RoleAny, async (req, res) => {
 
         res.status(200).json({
             message: 'employees fetched',
-            payload: employees,
-            total: employees.length
+            payload: {
+                employees,
+                total: employees.length
+            }
         })
     } catch (error) {
         const toReturn = errorHandler(error)
@@ -41,6 +43,7 @@ employeesRouter.get('/', RoleAny, async (req, res) => {
 employeesRouter.get('/:uid', RoleAny, async (req, res) => {
     try {
         const { uid } = req.params
+        console.log('uid', uid)
 
         const employee = await db.query.employees.findFirst({
             where: (employees, { eq }) => eq(employees.id, uid)
@@ -49,7 +52,7 @@ employeesRouter.get('/:uid', RoleAny, async (req, res) => {
         if (!employee) throw new BadRequestError('Employee not found')
 
         res.status(200).json({
-            message: 'employee fetched',
+            message: 'Employee fetched successfully',
             payload: employeeSchema.parse(employee)
         })
     } catch (error) {
@@ -62,7 +65,7 @@ employeesRouter.get('/:uid', RoleAny, async (req, res) => {
 })
 
 employeesRouter.put(
-    '/add_employee',
+    '/add',
     ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]),
     validateRequestBody(insertEmployeeSchema),
     async (req, res) => {
@@ -100,12 +103,12 @@ employeesRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRole
             where: (employees, { eq }) => eq(employees.id, uid)
         })
 
-        if (!employee) throw new BadRequestError('Employee not found')
+        if (!employee) throw new NotFoundError('Employee not found')
 
         const result = await db.delete(employeesTable).where(eq(employeesTable.id, uid)).returning()
 
         res.status(200).json({
-            message: 'deleted employee',
+            message: 'Employee deleted successfully',
             payload: employeeSchema.parse(result[0])
         })
     } catch (err) {
@@ -131,7 +134,7 @@ employeesRouter.patch(
                 where: (employees, { eq }) => eq(employees.id, uid)
             })
 
-            if (!employee) throw new BadRequestError('Employee not found')
+            if (!employee) throw new NotFoundError('Employee not found')
 
             // check if employee already exists by email if email is being updated
             if (updatedEmployee.email) {
@@ -150,7 +153,7 @@ employeesRouter.patch(
             const result = await db.update(employeesTable).set(updatedEmployee).where(eq(employeesTable.id, uid)).returning()
 
             res.status(200).json({
-                message: 'updated employee',
+                message: 'Employee updated successfully',
                 payload: employeeSchema.parse(result[0])
             })
         } catch (err) {

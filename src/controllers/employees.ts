@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import { db } from '../conn'
 import { employeeSchema, employeesTable, IAddEmployee } from '../db/schema/employees.schema'
 import { NotFoundError } from '../helpers/errorHandler'
-import { fetchDepartmentByName } from './departments'
+import { fetchDepartmentById, fetchDepartmentByName } from './departments'
 
 // Hash password utility
 export async function hashPassword(password: string): Promise<string> {
@@ -40,4 +40,24 @@ export async function insertEmployee(data: IAddEmployee) {
         })
 
     return employeeSchema.parse(employee[0])
+}
+
+/**
+ * Fetch an employee by email
+ *
+ * @param email - The email of the employee
+ *
+ * @returns The employee data with the department name
+ */
+export const fetchEmployeeByEmail = async (email: string) => {
+    const employee = await db.query.employees.findFirst({
+        where: (employees, { eq }) => eq(employees.email, email)
+    })
+
+    if (!employee) throw new NotFoundError('Employee not found')
+
+    // fetch the department name
+    const department = await fetchDepartmentById(employee.department as string)
+
+    return employeeSchema.parse({ ...employee, department: department.name })
 }
