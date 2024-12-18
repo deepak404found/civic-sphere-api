@@ -23,9 +23,11 @@ departmentsRouter.get('/', RoleAny, async (req, res) => {
         })
 
         res.status(200).json({
-            message: 'departments fetched',
-            payload: departments,
-            total: departments.length
+            message: 'Departments fetched successfully',
+            payload: {
+                departments,
+                total: departments.length
+            }
         })
     } catch (error) {
         const toReturn = errorHandler(error)
@@ -47,7 +49,7 @@ departmentsRouter.get('/:id', RoleAny, async (req, res) => {
         if (!department) throw new BadRequestError('Department not found')
 
         res.status(200).json({
-            message: 'department fetched',
+            message: 'Department fetched successfully',
             payload: departmentSchema.parse(department)
         })
     } catch (error) {
@@ -78,7 +80,7 @@ departmentsRouter.put(
             // console.log('result', result)
 
             res.status(200).json({
-                message: 'added department',
+                message: 'Department added successfully',
                 payload: result[0]
             })
         } catch (err) {
@@ -104,7 +106,7 @@ departmentsRouter.delete('/:id', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRol
         const result = await db.delete(departmentsTable).where(eq(departmentsTable.id, id)).returning()
 
         res.status(200).json({
-            message: 'deleted department',
+            message: 'Department deleted successfully',
             payload: departmentSchema.parse(result[0])
         })
     } catch (err) {
@@ -143,7 +145,7 @@ departmentsRouter.patch(
             const result = await db.update(departmentsTable).set(updatedDepartment).where(eq(departmentsTable.id, id)).returning()
 
             res.status(200).json({
-                message: 'updated department',
+                message: 'Department updated successfully',
                 payload: departmentSchema.parse(result[0])
             })
         } catch (err) {

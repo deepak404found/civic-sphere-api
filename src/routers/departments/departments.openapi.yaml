@@ -1,0 +1,628 @@
+# paths:
+#   /employees/{uid}:
+#     get:
+#       tags:
+#         - Employee
+#       summary: Get Employee details by ID
+#       operationId: GetEmployeeById
+#       parameters:
+#         - in: path
+#           name: uid
+#           required: true
+#           schema:
+#             type: string
+#           description: User ID
+#       responses:
+#         "200":
+#           description: OK
+#           content:
+#             application/json:
+#               schema:
+#                 type: object
+#                 properties:
+#                   message:
+#                     type: string
+#                     example: "Employee fetched successfully"
+#                   payload:
+#                     $ref: "#/components/schemas/Employee"
+#         "400":
+#           description: Bad Request
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/BadRequestError"
+#         "401":
+#           description: Unauthorized
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/UnauthorizedError"
+#         "404":
+#           description: Not Found
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/NotFoundError"
+#         "500":
+#           description: Internal Server Error
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/InternalServerError"
+#     patch:
+#       tags:
+#         - Employee
+#       summary: Update Employee details by ID
+#       operationId: UpdateEmployeeById
+#       parameters:
+#         - in: path
+#           name: uid
+#           required: true
+#           schema:
+#             type: string
+#           description: User ID
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               type: object
+#               properties:
+#                 email:
+#                   type: string
+#                   example: "sample@mail.com"
+#                   default: "sample@mail.com"
+#                   description: Email of the employee
+#                 role:
+#                   type: string
+#                   example: "employee"
+#                   default: "employee"
+#                   description: Role of the employee (employee/admin)
+#                 department:
+#                   type: string
+#                   example: "raipur"
+#                   default: "raipur"
+#                   description: Department name
+#                 full_name:
+#                   type: string
+#                   example: "John Doe"
+#                   default: "John Doe"
+#                   description: Full Name of the employee
+#                 phone:
+#                   type: string
+#                   example: "1234567890"
+#                   default: "1234567890"
+#                   description: Phone number of the employee
+#       responses:
+#         "200":
+#           description: OK
+#           content:
+#             application/json:
+#               schema:
+#                 type: object
+#                 properties:
+#                   message:
+#                     type: string
+#                     example: "Employee updated successfully"
+#                   payload:
+#                     $ref: "#/components/schemas/Employee"
+#         "400":
+#           description: Bad Request
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/BadRequestError"
+#         "401":
+#           description: Unauthorized
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/UnauthorizedError"
+#         "404":
+#           description: Not Found
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/NotFoundError"
+#         "500":
+#           description: Internal Server Error
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/InternalServerError"
+#     delete:
+#       tags:
+#         - Employee
+#       summary: Delete Employee by ID
+#       operationId: DeleteEmployeeById
+#       parameters:
+#         - in: path
+#           name: uid
+#           required: true
+#           schema:
+#             type: string
+#           description: User ID
+#       responses:
+#         "200":
+#           description: OK
+#           content:
+#             application/json:
+#               schema:
+#                 type: object
+#                 properties:
+#                   message:
+#                     type: string
+#                     example: "Employee deleted successfully"
+#                   payload:
+#                     $ref: "#/components/schemas/Employee"
+#         "400":
+#           description: Bad Request
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/BadRequestError"
+#         "401":
+#           description: Unauthorized
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/UnauthorizedError"
+#         "404":
+#           description: Not Found
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/NotFoundError"
+#         "500":
+#           description: Internal Server Error
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/InternalServerError"
+
+#   /employees:
+#     get:
+#       tags:
+#         - Employee
+#       summary: Get Employees
+#       operationId: GetEmployees
+#       responses:
+#         "200":
+#           description: OK
+#           content:
+#             application/json:
+#               schema:
+#                 type: object
+#                 properties:
+#                   message:
+#                     type: string
+#                     example: "Employees fetched successfully"
+#                   payload:
+#                     type: object
+#                     properties:
+#                       employees:
+#                         type: array
+#                         items:
+#                           $ref: "#/components/schemas/Employee"
+#                       total:
+#                         type: integer
+#                         example: 1
+#         "400":
+#           description: Bad Request
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/BadRequestError"
+#         "401":
+#           description: Unauthorized
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/UnauthorizedError"
+#         "500":
+#           description: Internal Server Error
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/InternalServerError"
+
+#   /employees/add:
+#     put:
+#       tags:
+#         - Employee
+#       summary: Add Employee
+#       operationId: AddEmployee
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               type: object
+#               properties:
+#                 email:
+#                   type: string
+#                   example: "sample@mail.com"
+#                   default: "sample@mail.com"
+#                   description: Email of the employee
+#                   required: true
+#                 role:
+#                   type: string
+#                   example: "employee"
+#                   default: "employee"
+#                   description: Role of the employee (employee/admin)
+#                   required: true
+#                 department:
+#                   type: string
+#                   example: "raipur"
+#                   default: "raipur"
+#                   description: Department name
+#                   required: true
+#                 pass:
+#                   type: string
+#                   example: "password"
+#                   default: "password"
+#                   description: Password of the employee
+#                   required: true
+#                 full_name:
+#                   type: string
+#                   example: "John Doe"
+#                   default: "John Doe"
+#                   description: Full Name of the employee
+#                 phone:
+#                   type: string
+#                   example: "1234567890"
+#                   default: "1234567890"
+#                   description: Phone number of the employee
+#       responses:
+#         "200":
+#           description: OK
+#           content:
+#             application/json:
+#               schema:
+#                 type: object
+#                 properties:
+#                   message:
+#                     type: string
+#                     example: "Employee added successfully"
+#                   payload:
+#                     $ref: "#/components/schemas/Employee"
+#         "400":
+#           description: Bad Request
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/BadRequestError"
+#         "401":
+#           description: Unauthorized
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/UnauthorizedError"
+#         "500":
+#           description: Internal Server Error
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/InternalServerError"
+
+# components:
+#   schemas:
+#     Employee:
+#       type: object
+#       properties:
+#         id:
+#           type: string
+#           description: Unique identifier for the user
+#           example: "123e4567-e89b-12d3-a456-426614174000"
+#         full_name:
+#           type: string
+#           description: Full Name
+#           example: John Doe
+#         email:
+#           type: string
+#           description: Email
+#           example: "sample@mail.com"
+#         phone:
+#           type: string
+#           description: Phone
+#           example: "1234567890"
+#         role:
+#           type: string
+#           description: Role
+#           example: "employee"
+#         department:
+#           type: string
+#           description: Department
+#           example: "raipur"
+#         createdAt:
+#           type: string
+#           format: date-time
+#           description: Date of creation
+#           example: "2021-08-10T09:00:00Z"
+#       required:
+#         - id
+#         - email
+#         - role
+#         - createdAt
+
+paths:
+  /departments/{id}:
+    get:
+      tags:
+        - Department
+      summary: Get Department details by ID
+      operationId: GetDepartmentById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Department ID
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Department fetched successfully"
+                  payload:
+                    $ref: "#/components/schemas/Department"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    patch:
+      tags:
+        - Department
+      summary: Update Department details by ID
+      operationId: UpdateDepartmentById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Department ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "raipur"
+                  default: "raipur"
+                  description: Name of the department
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Department updated successfully"
+                  payload:
+                    $ref: "#/components/schemas/Department"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    delete:
+      tags:
+        - Department
+      summary: Delete Department by ID
+      operationId: DeleteDepartmentById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Department ID
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Department deleted successfully"
+                  payload:
+                    $ref: "#/components/schemas/Department"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+  /departments:
+    get:
+      tags:
+        - Department
+      summary: Get Departments
+      operationId: GetDepartments
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Departments fetched successfully"
+                  payload:
+                    type: object
+                    properties:
+                      departments:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Department"
+                      total:
+                        type: integer
+                        example: 1
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+  /departments/add:
+    put:
+      tags:
+        - Department
+      summary: Add Department
+      operationId: AddDepartment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "raipur"
+                  default: "raipur"
+                  description: Name of the department
+                  required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Department added successfully"
+                  payload:
+                    $ref: "#/components/schemas/Department"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+components:
+  schemas:
+    Department:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the department
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: Name of the department
+          example: "raipur"
+        createdAt:
+          type: string
+          format: date-time
+          description: Date of creation
+          example: "2021-08-10T09:00:00Z"
+      required:
+        - id
+        - name
+        - createdAt
