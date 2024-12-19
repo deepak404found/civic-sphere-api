@@ -1,3 +1,5 @@
+import { SwaggerThemeNameEnum } from 'swagger-themes'
+
 export const vars = {
     PORT: process.env?.PORT ? parseInt(process.env.PORT) : 3001,
     PG_USER: process.env?.PG_USER || 'dbadmin',
@@ -7,6 +9,8 @@ export const vars = {
     PG_PORT: process.env?.PG_PORT ? parseInt(process.env.PG_PORT) : 5432,
     PG_SSL: process.env?.PG_SSL === 'true' || false,
     ENABLE_PG_LOG: process.env?.ENABLE_PG_LOG === 'true' || false,
+
+    SWAGGER_THEME: process.env?.SWAGGER_THEME || SwaggerThemeNameEnum.ONE_DARK,
 
     JWT_SECRET: process.env?.JWT_SECRET || 'secret',
     JWT_EXPIRY: process.env?.JWT_EXPIRY || '1h'

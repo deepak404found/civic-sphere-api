@@ -4,6 +4,7 @@ import swaggerUi from 'swagger-ui-express'
 import { version } from '../../package.json'
 import { logger } from './logger'
 import { vars } from '../env'
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes'
 
 const options: swaggerJsdoc.Options = {
     definition: {
@@ -53,12 +54,16 @@ const options: swaggerJsdoc.Options = {
 export const swaggerSpec = swaggerJsdoc(options)
 
 function swaggerDocs(app: Express, port: number) {
+    const theme = new SwaggerTheme()
+
     // Swagger page
     app.use(
         '/docs',
         swaggerUi.serve,
         swaggerUi.setup(swaggerSpec, {
-            customSiteTitle: 'Chips MIS Docs'
+            customSiteTitle: 'Chips MIS Docs',
+            explorer: true,
+            customCss: theme.getBuffer(vars.SWAGGER_THEME as SwaggerThemeNameEnum)
         })
     )
 
