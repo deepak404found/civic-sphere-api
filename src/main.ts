@@ -29,6 +29,7 @@ const createSuperAdmin = async () => {
 
         if (superAdminExists) {
             logger.info('Super admin already exists')
+            logger.debug('Super admin credentials:', superAdmin)
             return
         }
 
@@ -52,6 +53,7 @@ const createSuperAdmin = async () => {
             .execute()
 
         logger.info('Super admin created')
+        logger.debug('Super admin credentials:', superAdmin)
         return
     } catch (error) {
         logger.error('Error creating super admin', error)
