@@ -1,6 +1,8 @@
 paths:
   /login:
     post:
+      tags:
+        - Onboarding
       summary: Login
       operationId: login
       requestBody:

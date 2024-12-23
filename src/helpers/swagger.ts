@@ -35,6 +35,10 @@ const options: swaggerJsdoc.Options = {
         ],
         tags: [
             {
+                name: 'Onboarding',
+                description: 'Onboarding related routes'
+            },
+            {
                 name: 'Employee',
                 description: 'Employee related routes'
             },

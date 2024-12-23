@@ -14,7 +14,8 @@
         "eslint": "./node_modules/eslint/bin/eslint.js src/*/**",
         "devStart": "npm-run-all -p build:dev dev",
         "migrate:generate": "drizzle-kit generate && drizzle-kit migrate",
-        "studio": "drizzle-kit studio"
+        "studio": "drizzle-kit studio",
+        "generate:docs": "ts-node src/generateOpenApiDoc.ts"
     },
     "repository": {
         "type": "git",
@@ -58,6 +59,7 @@
         "swagger-jsdoc": "^6.2.8",
         "swagger-themes": "^1.4.3",
         "swagger-ui-express": "^5.0.1",
+        "ts-node": "^10.9.2",
         "winston": "^3.15.0",
         "zod": "^3.23.8"
     }
