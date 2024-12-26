@@ -12,7 +12,7 @@ const createSuperAdmin = async () => {
         const superAdmin = {
             role: 'super_admin',
             department: 'chips-cg',
-            pass: 'admin@12345',
+            pass: 'Admin@12345',
             full_name: 'Super admin',
             email: 'admin@mail.com',
             phone: '1234567890'

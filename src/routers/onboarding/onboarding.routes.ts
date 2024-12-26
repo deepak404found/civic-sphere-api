@@ -5,7 +5,7 @@ import { db } from '../../conn'
 import { fetchDepartmentById } from '../../controllers/departments'
 import { verifyPassword } from '../../controllers/employees'
 import { employeeSchema, insertEmployeeSchema, UserRoleEnum } from '../../db/schema/employees.schema'
-import { errorHandler, ForbiddenError } from '../../helpers/errorHandler'
+import { BadRequestError, errorHandler, ForbiddenError } from '../../helpers/errorHandler'
 import { validateRequestBody } from '../../helpers/zodValidator'
 
 const loginRouter = Router()
@@ -24,7 +24,7 @@ loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) =>
         })
 
         const validPass = await verifyPassword(loginData.pass, result?.pass || '')
-        if (!result || !validPass) throw new ForbiddenError('Invalid Credentials')
+        if (!result || !validPass) throw new BadRequestError('Invalid Credentials')
 
         // fetch the department name
         const department = await fetchDepartmentById(result.department as string)
