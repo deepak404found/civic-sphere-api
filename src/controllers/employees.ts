@@ -50,8 +50,11 @@ export async function insertEmployee(data: IAddEmployee) {
  * @returns The employee data with the department name
  */
 export const fetchEmployeeByEmail = async (email: string) => {
-    const employee = await db.query.employees.findFirst({
-        where: (employees, { eq }) => eq(employees.email, email)
+    const employee = await db.query.employeesTable.findFirst({
+        where: (employees, { eq }) => eq(employees.email, email),
+        with: {
+            department: true
+        }
     })
 
     if (!employee) throw new NotFoundError('Employee not found')

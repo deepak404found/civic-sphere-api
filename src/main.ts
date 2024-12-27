@@ -1,7 +1,7 @@
 import app from './app'
 import { db } from './conn'
 import { hashPassword } from './controllers/employees'
-import { departmentsTable } from './db/schema/departments.schema'
+import { departmentsTable, IAddDepartment, insertDepartmentSchema } from './db/schema/departments.schema'
 import { employeesTable } from './db/schema/employees.schema'
 import { vars } from './env'
 import { logger } from './helpers/logger'
@@ -18,12 +18,15 @@ const createSuperAdmin = async () => {
             phone: '1234567890'
         }
 
-        const department = {
-            name: 'chips-cg'
+        const department: IAddDepartment = {
+            name: 'chips-cg',
+            city: 'raipur',
+            state: 'chhattisgarh',
+            email: 'cg@mail.com'
         }
 
         // check if super admin exists
-        const superAdminExists = await db.query.employees.findFirst({
+        const superAdminExists = await db.query.employeesTable.findFirst({
             where: (employees, { eq }) => eq(employees.email, superAdmin.email)
         })
 

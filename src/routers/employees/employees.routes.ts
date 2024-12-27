@@ -24,7 +24,7 @@ employeesRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
 
         const sortByColumn = sortBy ? sortBy : 'createdAt'
 
-        const employees = await db.query.employees.findMany({
+        const employees = await db.query.employeesTable.findMany({
             offset: skip,
             limit: limit,
             where: search ? (employees, { like }) => like(employees.full_name, `%${search}%`) : undefined,
@@ -34,6 +34,9 @@ employeesRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
                 } else {
                     return desc(employees[sortByColumn])
                 }
+            },
+            with: {
+                department: true
             }
         })
 
@@ -58,8 +61,11 @@ employeesRouter.get('/:uid', RoleAny, async (req, res) => {
         const { uid } = req.params
         console.log('uid', uid)
 
-        const employee = await db.query.employees.findFirst({
-            where: (employees, { eq }) => eq(employees.id, uid)
+        const employee = await db.query.employeesTable.findFirst({
+            where: (employees, { eq }) => eq(employees.id, uid),
+            with: {
+                department: true
+            }
         })
 
         if (!employee) throw new BadRequestError('Employee not found')
@@ -86,8 +92,11 @@ employeesRouter.put(
             const newEmployee = req.body as IAddEmployee
 
             // check if employee already exists by email
-            const checkEmployeeQuery = await db.query.employees.findFirst({
-                where: (employees, { eq }) => eq(employees.email, newEmployee.email)
+            const checkEmployeeQuery = await db.query.employeesTable.findFirst({
+                where: (employees, { eq }) => eq(employees.email, newEmployee.email),
+                with: {
+                    department: true
+                }
             })
             if (checkEmployeeQuery) throw new BadRequestError('Employee already exists')
 
@@ -112,8 +121,11 @@ employeesRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRole
     try {
         const { uid } = req.params
 
-        const employee = await db.query.employees.findFirst({
-            where: (employees, { eq }) => eq(employees.id, uid)
+        const employee = await db.query.employeesTable.findFirst({
+            where: (employees, { eq }) => eq(employees.id, uid),
+            with: {
+                department: true
+            }
         })
 
         if (!employee) throw new NotFoundError('Employee not found')
@@ -143,7 +155,7 @@ employeesRouter.patch(
             const { uid } = req.params
             const updatedEmployee = req.body as IUpdateEmployee
 
-            const employee = await db.query.employees.findFirst({
+            const employee = await db.query.employeesTable.findFirst({
                 where: (employees, { eq }) => eq(employees.id, uid)
             })
 
@@ -151,7 +163,7 @@ employeesRouter.patch(
 
             // check if employee already exists by email if email is being updated
             if (updatedEmployee.email) {
-                const checkEmployeeQuery = await db.query.employees.findFirst({
+                const checkEmployeeQuery = await db.query.employeesTable.findFirst({
                     where: (employees, { eq }) => eq(employees.email, updatedEmployee.email as string)
                 })
                 if (checkEmployeeQuery) throw new BadRequestError('This email is already in use')

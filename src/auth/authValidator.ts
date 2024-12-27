@@ -76,7 +76,7 @@ export const ValidateRole = (role: UserRoleEnum[]): RequestHandler => {
             }
 
             // query the db for the employee
-            const employee = await db.query.employees.findFirst({
+            const employee = await db.query.employeesTable.findFirst({
                 where: (employees, { eq }) => eq(employees.email, tokenResults.email)
             })
 

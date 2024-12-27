@@ -10,7 +10,7 @@ import { NotFoundError } from '../helpers/errorHandler'
  * @returns The department data
  */
 export const fetchDepartmentByName = async (name: string) => {
-    const department = await db.query.departments.findFirst({
+    const department = await db.query.departmentsTable.findFirst({
         where: (departments, { eq }) => eq(departments.name, name)
     })
 
@@ -27,7 +27,7 @@ export const fetchDepartmentByName = async (name: string) => {
  * @returns The department data
  */
 export const fetchDepartmentById = async (id: string) => {
-    const department = await db.query.departments.findFirst({
+    const department = await db.query.departmentsTable.findFirst({
         where: (departments, { eq }) => eq(departments.id, id)
     })
 

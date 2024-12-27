@@ -365,9 +365,7 @@ components:
           description: Role
           example: "employee"
         department:
-          type: string
-          description: Department
-          example: "raipur"
+          $ref: "#/components/schemas/Department"
         createdAt:
           type: string
           format: date-time

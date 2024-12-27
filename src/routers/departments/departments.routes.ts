@@ -22,7 +22,7 @@ departmentsRouter.get('/', RoleAny, validateListQueryParams, async (req, res) =>
 
         const sortByColumn = sortBy ? sortBy : 'createdAt'
 
-        const departments = await db.query.departments.findMany({
+        const departments = await db.query.departmentsTable.findMany({
             offset: skip,
             limit: limit,
             where: search ? (departments, { like }) => like(departments.name, `%${search}%`) : undefined,
@@ -59,7 +59,7 @@ departmentsRouter.get('/:id', RoleAny, async (req, res) => {
     try {
         const { id } = req.params
 
-        const department = await db.query.departments.findFirst({
+        const department = await db.query.departmentsTable.findFirst({
             where: (departments, { eq }) => eq(departments.id, id)
         })
 
@@ -87,7 +87,7 @@ departmentsRouter.put(
             const newDepartment = req.body as IAddDepartment
 
             // check if department already exists by name
-            const checkDepartmentQuery = await db.query.departments.findFirst({
+            const checkDepartmentQuery = await db.query.departmentsTable.findFirst({
                 where: (departments, { eq }) => eq(departments.name, newDepartment.name)
             })
             console.log('checkDepartmentQuery', checkDepartmentQuery)
@@ -114,7 +114,7 @@ departmentsRouter.delete('/:id', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRol
     try {
         const { id } = req.params
 
-        const department = await db.query.departments.findFirst({
+        const department = await db.query.departmentsTable.findFirst({
             where: (departments, { eq }) => eq(departments.id, id)
         })
 
@@ -145,21 +145,35 @@ departmentsRouter.patch(
             const { id } = req.params
             const updatedDepartment = req.body as IUpdateDepartment
 
-            const department = await db.query.departments.findFirst({
+            const department = await db.query.departmentsTable.findFirst({
                 where: (departments, { eq }) => eq(departments.id, id)
             })
 
             if (!department) throw new BadRequestError('Department not found')
 
+            if (
+                Object.keys(updatedDepartment).every((key) => {
+                    return department[key] === updatedDepartment[key]
+                })
+            ) {
+                return res.status(200).json({
+                    message: 'Department updated successfully',
+                    payload: departmentSchema.parse(department)
+                }) as any
+            }
+
             // check if department already exists by name
             if (updatedDepartment.name) {
-                const checkDepartmentQuery = await db.query.departments.findFirst({
-                    where: (departments, { eq }) => eq(departments.name, updatedDepartment.name as string)
+                const checkDepartmentQuery = await db.query.departmentsTable.findFirst({
+                    where: (departments, { eq, and, not }) =>
+                        and(eq(departments.name, updatedDepartment.name as string), not(eq(departments.id, id)))
                 })
                 if (checkDepartmentQuery) throw new BadRequestError('Department already exists')
             }
 
+            console.log('updatedDepartment', updatedDepartment)
             const result = await db.update(departmentsTable).set(updatedDepartment).where(eq(departmentsTable.id, id)).returning()
+            console.log('result', result)
 
             res.status(200).json({
                 message: 'Department updated successfully',

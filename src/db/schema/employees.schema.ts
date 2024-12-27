@@ -1,7 +1,8 @@
 import { pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod'
 import { z } from 'zod'
-import { departmentsTable } from './departments.schema'
+import { departmentSchema, departmentsTable } from './departments.schema'
+import { relations } from 'drizzle-orm'
 
 export enum UserRoleEnum {
     SUPER_ADMIN = 'super_admin',
@@ -15,10 +16,19 @@ export const employeesTable = pgTable('employees', {
     email: varchar('email', { length: 255 }).notNull(),
     phone: varchar('phone', { length: 12 }),
     role: varchar('role', { length: 15 }).notNull(),
-    department: uuid('department').references(() => departmentsTable.id),
+    department: uuid('department').references(() => departmentsTable.id, {
+        onDelete: 'cascade'
+    }),
     pass: varchar('pass', { length: 60 }).notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow()
 })
+
+export const employeesDepartmentRelation = relations(employeesTable, ({ one }) => ({
+    department: one(departmentsTable, {
+        fields: [employeesTable.department],
+        references: [departmentsTable.id]
+    })
+}))
 
 /**
  * Schema for inserting employee
@@ -52,8 +62,12 @@ export type IUpdateEmployee = z.infer<typeof updateEmployeeSchema>
 /**
  * Employee schema without password to be used in response
  */
-export const employeeSchema = createSelectSchema(employeesTable).omit({
-    pass: true
-})
+export const employeeSchema = createSelectSchema(employeesTable)
+    .omit({
+        pass: true
+    })
+    .extend({
+        department: departmentSchema
+    })
 
 export type IEmployee = z.infer<typeof employeeSchema>
