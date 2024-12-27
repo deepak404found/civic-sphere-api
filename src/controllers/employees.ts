@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import { db } from '../conn'
-import { employeeSchema, employeesTable, IAddEmployee } from '../db/schema/employees.schema'
+import { employeeSchema, employeesTable, IAddEmployee, IEmployee } from '../db/schema/employees.schema'
 import { NotFoundError } from '../helpers/errorHandler'
 import { fetchDepartmentById, fetchDepartmentByName } from './departments'
 
@@ -30,16 +30,25 @@ export async function insertEmployee(data: IAddEmployee) {
     const department = await fetchDepartmentByName(data.department)
 
     // Insert into the database with the hashed password and return the result
-    const employee = await db
+    const employee = (await db
         .insert(employeesTable)
         .values({ ...data, pass: hashedPassword, department: department.id })
         .returning()
+        .then(async (result) => {
+            return db.query.employeesTable.findFirst({
+                where: (employees, { eq }) => eq(employees.id, result[0].id),
+                with: {
+                    department: true
+                }
+            })
+        })
         .catch((err) => {
             console.error(err)
             throw new Error('Error inserting employee')
-        })
+        })) as unknown as IEmployee
+    console.log('employee', employee)
 
-    return employeeSchema.parse(employee[0])
+    return employeeSchema.parse(employee)
 }
 
 /**
@@ -56,6 +65,7 @@ export const fetchEmployeeByEmail = async (email: string) => {
             department: true
         }
     })
+    console.log('employee', employee)
 
     if (!employee) throw new NotFoundError('Employee not found')
 

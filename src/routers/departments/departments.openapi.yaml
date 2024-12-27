@@ -179,7 +179,7 @@ paths:
     get:
       tags:
         - Department
-      summary: Get Departments list
+      summary: Get Departments list with pagination. If user is employee, only the department he belongs to will be returned.
       operationId: GetDepartments
       parameters:
         - in: query
@@ -273,6 +273,24 @@ paths:
                   example: "raipur"
                   default: "raipur"
                   description: Name of the department
+                  required: true
+                email:
+                  type: string
+                  example: "sample@mail.com"
+                  default: "sample@mail.com"
+                  description: Email of the department
+                  required: true
+                city:
+                  type: string
+                  example: "raipur"
+                  default: "raipur"
+                  description: City of the department
+                  required: true
+                state:
+                  type: string
+                  example: "Chhattisgarh"
+                  default: "Chhattisgar"
+                  description: State of the department
                   required: true
       responses:
         "200":

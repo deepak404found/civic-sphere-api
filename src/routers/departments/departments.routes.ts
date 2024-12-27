@@ -19,13 +19,18 @@ const departmentsRouter = Router()
 departmentsRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
     try {
         const { skip, limit, search, sortBy, sortOrder } = req.query as unknown as ListQueryParamsType
-
+        const employee = res.locals.employee
         const sortByColumn = sortBy ? sortBy : 'createdAt'
 
         const departments = await db.query.departmentsTable.findMany({
             offset: skip,
             limit: limit,
-            where: search ? (departments, { like }) => like(departments.name, `%${search}%`) : undefined,
+            where: (departments, { like, eq, and }) =>
+                and(
+                    // if employee role is employee, only show the department they belong to
+                    employee.role === UserRoleEnum.EMPLOYEE ? eq(departments.id, employee.department) : undefined,
+                    search ? like(departments.name, `%${search}%`) : undefined
+                ),
             orderBy: (departments, { asc, desc }) => {
                 if (sortOrder === 'asc') {
                     return asc(departments[sortByColumn])

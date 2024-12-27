@@ -62,39 +62,4 @@ components:
           description: The token for the user
           example: "token"
         user:
-          type: object
-          properties:
-            id:
-              type: string
-              description: Unique identifier for the user
-              example: "123e4567-e89b-12d3-a456-426614174000"
-            full_name:
-              type: string
-              description: Full Name
-              example: John Doe
-            email:
-              type: string
-              description: Email
-              example: "sample@mail.com"
-            phone:
-              type: string
-              description: Phone
-              example: "1234567890"
-            role:
-              type: string
-              description: Role
-              example: "Software Engineer"
-            department:
-              type: string
-              description: Department
-              example: "raipur"
-            createdAt:
-              type: string
-              format: date-time
-              description: Date of creation
-              example: "2021-08-10T09:00:00Z"
-          required:
-            - id
-            - email
-            - role
-            - createdAt
+          $ref: "#/components/schemas/Employee"
