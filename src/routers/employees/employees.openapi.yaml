@@ -184,8 +184,42 @@ paths:
     get:
       tags:
         - Employee
-      summary: Get Employees
+      summary: Get Employees List
       operationId: GetEmployees
+      parameters:
+        - in: query
+          name: skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of items to skip
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: Number of items to return
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search query
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          description: Sort order
       responses:
         "200":
           description: OK

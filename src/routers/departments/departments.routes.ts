@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { RoleAny, ValidateRole } from '../../auth/authValidator'
 import { db } from '../../conn'
@@ -12,21 +12,38 @@ import {
 } from '../../db/schema/departments.schema'
 import { UserRoleEnum } from '../../db/schema/employees.schema'
 import { BadRequestError, errorHandler } from '../../helpers/errorHandler'
-import { validateRequestBody } from '../../helpers/zodValidator'
+import { ListQueryParamsType, validateListQueryParams, validateRequestBody } from '../../helpers/zodValidator'
 
 const departmentsRouter = Router()
 
-departmentsRouter.get('/', RoleAny, async (req, res) => {
+departmentsRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
     try {
-        const departments = (await db.query.departments.findMany())?.map((department) => {
-            return departmentSchema.parse(department)
+        const { skip, limit, search, sortBy, sortOrder } = req.query as unknown as ListQueryParamsType
+
+        const sortByColumn = sortBy ? sortBy : 'createdAt'
+
+        const departments = await db.query.departments.findMany({
+            offset: skip,
+            limit: limit,
+            where: search ? (departments, { like }) => like(departments.name, `%${search}%`) : undefined,
+            orderBy: (departments, { asc, desc }) => {
+                if (sortOrder === 'asc') {
+                    return asc(departments[sortByColumn])
+                } else {
+                    return desc(departments[sortByColumn])
+                }
+            }
         })
 
         res.status(200).json({
             message: 'Departments fetched successfully',
             payload: {
-                departments,
-                total: departments.length
+                departments: departments.map((department) => departmentSchema.parse(department)),
+                total: await db
+                    .select({ count: count() })
+                    .from(departmentsTable)
+                    .execute()
+                    .then((data) => data[0].count)
             }
         })
     } catch (error) {

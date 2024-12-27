@@ -3,16 +3,48 @@ import employeesRouter from './employees/employees.routes'
 import loginRouter from './onboarding/onboarding.routes'
 import departmentsRouter from './departments/departments.routes'
 
+export const routes = {
+    base: {
+        path: '/',
+        healthcheck: '/healthcheck',
+        subRoutes: {
+            login: '/login'
+        }
+    },
+    employees: {
+        path: '/employees',
+        router: employeesRouter,
+        subRoutes: {
+            getEmployees: '/',
+            addEmployee: '/add',
+            getEmployee: '/:uid',
+            deleteEmployee: '/:uid',
+            updateEmployee: '/:uid'
+        }
+    },
+    departments: {
+        path: '/departments',
+        router: departmentsRouter,
+        subRoutes: {
+            getDepartments: '/',
+            addDepartment: '/add',
+            getDepartment: '/:uid',
+            deleteDepartment: '/:uid',
+            updateDepartment: '/:uid'
+        }
+    }
+}
+
 const router = Router()
 
-router.get('/healthcheck', (req, res) => {
+router.get(routes.base.healthcheck, (req, res) => {
     res.json({ message: 'Service is healthy' })
 })
 router.get('/', (req, res) => {
     res.json({ message: 'Welcome to the API' })
 })
-router.use('/employees', employeesRouter)
-router.use('/departments', departmentsRouter)
+router.use(routes.employees.path, routes.employees.router)
+router.use(routes.departments.path, routes.departments.router)
 router.use(loginRouter)
 
 export default router

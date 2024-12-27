@@ -12,23 +12,36 @@ import {
     UserRoleEnum
 } from '../../db/schema/employees.schema'
 import { BadRequestError, errorHandler, NotFoundError } from '../../helpers/errorHandler'
-import { validateRequestBody } from '../../helpers/zodValidator'
-import { eq } from 'drizzle-orm'
+import { ListQueryParamsType, validateListQueryParams, validateRequestBody } from '../../helpers/zodValidator'
+import { count, eq } from 'drizzle-orm'
 import { fetchDepartmentByName } from '../../controllers/departments'
 
 const employeesRouter = Router()
 
-employeesRouter.get('/', RoleAny, async (req, res) => {
+employeesRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
     try {
-        const employees = (await db.query.employees.findMany())?.map((employee) => {
-            return employeeSchema.parse(employee)
+        const { skip, limit, search, sortBy, sortOrder } = req.query as unknown as ListQueryParamsType
+
+        const sortByColumn = sortBy ? sortBy : 'createdAt'
+
+        const employees = await db.query.employees.findMany({
+            offset: skip,
+            limit: limit,
+            where: search ? (employees, { like }) => like(employees.full_name, `%${search}%`) : undefined,
+            orderBy: (employees, { asc, desc }) => {
+                if (sortOrder === 'asc') {
+                    return asc(employees[sortByColumn])
+                } else {
+                    return desc(employees[sortByColumn])
+                }
+            }
         })
 
         res.status(200).json({
             message: 'employees fetched',
             payload: {
-                employees,
-                total: employees.length
+                employees: employees.map((employee) => employeeSchema.parse(employee)),
+                total: await db.select({ count: count() }).from(employeesTable).execute()
             }
         })
     } catch (error) {
