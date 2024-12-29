@@ -27,7 +27,7 @@ export async function insertEmployee(data: IAddEmployee) {
     const hashedPassword = await hashPassword(data.pass)
 
     // Fetch the department id
-    const department = await fetchDepartmentByName(data.department)
+    const department = await fetchDepartmentById(data.department)
 
     // Insert into the database with the hashed password and return the result
     const employee = (await db

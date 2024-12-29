@@ -271,42 +271,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: "sample@mail.com"
-                  default: "sample@mail.com"
-                  description: Email of the employee
-                  required: true
-                role:
-                  type: string
-                  example: "employee"
-                  default: "employee"
-                  description: Role of the employee (employee/admin)
-                  required: true
-                department:
-                  type: string
-                  example: "raipur"
-                  default: "raipur"
-                  description: Department name
-                  required: true
-                pass:
-                  type: string
-                  example: "password"
-                  default: "password"
-                  description: Password of the employee
-                  required: true
-                full_name:
-                  type: string
-                  example: "John Doe"
-                  default: "John Doe"
-                  description: Full Name of the employee
-                phone:
-                  type: string
-                  example: "1234567890"
-                  default: "1234567890"
-                  description: Phone number of the employee
+              $ref: "#/components/schemas/AddEmployeeForm"
       responses:
         "200":
           description: OK
@@ -361,9 +326,7 @@ components:
           description: Phone
           example: "1234567890"
         role:
-          type: string
-          description: Role
-          example: "employee"
+          $ref: "#/components/schemas/UserRoleEnum"
         department:
           $ref: "#/components/schemas/Department"
         createdAt:
@@ -376,3 +339,46 @@ components:
         - email
         - role
         - createdAt
+    UserRoleEnum:
+      type: string
+      description: Role of the user
+      enum:
+        - employee
+        - admin
+    AddEmployeeForm:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "sample@mail.com"
+          default: "sample@mail.com"
+          description: Email of the employee
+          required: true
+        role:
+          type: string
+          example: "employee"
+          default: "employee"
+          description: Role of the employee (employee/admin)
+          required: true
+        department:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          default: "123e4567-e89b-12d3-a456-426614174000"
+          description: Department ID
+          required: true
+        pass:
+          type: string
+          example: "password"
+          default: "password"
+          description: Password of the employee
+          required: true
+        full_name:
+          type: string
+          example: "John Doe"
+          default: "John Doe"
+          description: Full Name of the employee
+        phone:
+          type: string
+          example: "1234567890"
+          default: "1234567890"
+          description: Phone number of the employee

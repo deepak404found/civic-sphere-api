@@ -176,9 +176,9 @@ departmentsRouter.patch(
                 if (checkDepartmentQuery) throw new BadRequestError('Department already exists')
             }
 
-            console.log('updatedDepartment', updatedDepartment)
+            // console.log('updatedDepartment', updatedDepartment)
             const result = await db.update(departmentsTable).set(updatedDepartment).where(eq(departmentsTable.id, id)).returning()
-            console.log('result', result)
+            // console.log('result', result)
 
             res.status(200).json({
                 message: 'Department updated successfully',

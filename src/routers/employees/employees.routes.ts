@@ -14,7 +14,7 @@ import {
 import { BadRequestError, errorHandler, NotFoundError } from '../../helpers/errorHandler'
 import { ListQueryParamsType, validateListQueryParams, validateRequestBody } from '../../helpers/zodValidator'
 import { count, eq } from 'drizzle-orm'
-import { fetchDepartmentByName } from '../../controllers/departments'
+import { fetchDepartmentById, fetchDepartmentByName } from '../../controllers/departments'
 
 const employeesRouter = Router()
 
@@ -23,10 +23,10 @@ employeesRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
         const { skip, limit, search, sortBy, sortOrder } = req.query as unknown as ListQueryParamsType
 
         const sortByColumn = sortBy ? sortBy : 'createdAt'
-
+        console.log('skip', skip, 'limit', limit)
         const employees = await db.query.employeesTable.findMany({
-            offset: skip,
-            limit: limit,
+            offset: parseInt(skip.toString()),
+            limit: parseInt(limit.toString()),
             where: search ? (employees, { like }) => like(employees.full_name, `%${search}%`) : undefined,
             orderBy: (employees, { asc, desc }) => {
                 if (sortOrder === 'asc') {
@@ -44,7 +44,11 @@ employeesRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
             message: 'employees fetched',
             payload: {
                 employees: employees.map((employee) => employeeSchema.parse(employee)),
-                total: await db.select({ count: count() }).from(employeesTable).execute()
+                total: await db
+                    .select({ count: count() })
+                    .from(employeesTable)
+                    .execute()
+                    .then((data) => data[0].count)
             }
         })
     } catch (error) {
@@ -132,9 +136,11 @@ employeesRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRole
 
         const result = await db.delete(employeesTable).where(eq(employeesTable.id, uid)).returning()
 
+        if (!result) throw new NotFoundError('Employee is not deleted')
+
         res.status(200).json({
             message: 'Employee deleted successfully',
-            payload: employeeSchema.parse(result[0])
+            payload: employeeSchema.parse(employee)
         })
     } catch (err) {
         const toReturn = errorHandler(err)
@@ -156,30 +162,70 @@ employeesRouter.patch(
             const updatedEmployee = req.body as IUpdateEmployee
 
             const employee = await db.query.employeesTable.findFirst({
-                where: (employees, { eq }) => eq(employees.id, uid)
+                where: (employees, { eq }) => eq(employees.id, uid),
+                with: {
+                    department: true
+                }
             })
 
             if (!employee) throw new NotFoundError('Employee not found')
 
+            if (
+                Object.keys(updatedEmployee).every((key) => {
+                    // check department by id
+                    if (key === 'department') {
+                        if (updatedEmployee.department) {
+                            if (typeof updatedEmployee.department === 'string') {
+                                return employee?.department?.id === updatedEmployee.department
+                            } else {
+                                return employee?.department?.id === updatedEmployee.department
+                            }
+                        } else {
+                            return true
+                        }
+                    }
+
+                    return employee[key] === updatedEmployee[key]
+                })
+            ) {
+                console.debug('Employee not updated')
+                return res.status(200).json({
+                    message: 'Employee updated successfully',
+                    payload: employeeSchema.parse(employee)
+                }) as any
+            }
+
             // check if employee already exists by email if email is being updated
             if (updatedEmployee.email) {
                 const checkEmployeeQuery = await db.query.employeesTable.findFirst({
-                    where: (employees, { eq }) => eq(employees.email, updatedEmployee.email as string)
+                    where: (employees, { eq, and, not }) =>
+                        and(eq(employees.email, updatedEmployee.email as string), not(eq(employees.id, uid)))
                 })
                 if (checkEmployeeQuery) throw new BadRequestError('This email is already in use')
             }
 
-            // ftech department
-            if (updatedEmployee.department) {
-                const department = await fetchDepartmentByName(updatedEmployee.department as string)
-                updatedEmployee.department = department.id
-            }
+            console.debug('Employee updated', updatedEmployee)
 
-            const result = await db.update(employeesTable).set(updatedEmployee).where(eq(employeesTable.id, uid)).returning()
+            // check if department exists
+            await fetchDepartmentById(updatedEmployee?.department as string)
+
+            const result = await db
+                .update(employeesTable)
+                .set(updatedEmployee)
+                .where(eq(employeesTable.id, uid))
+                .returning()
+                .then(async (result) => {
+                    return db.query.employeesTable.findFirst({
+                        where: (employees, { eq }) => eq(employees.id, result[0].id),
+                        with: {
+                            department: true
+                        }
+                    })
+                })
 
             res.status(200).json({
                 message: 'Employee updated successfully',
-                payload: employeeSchema.parse(result[0])
+                payload: employeeSchema.parse(result)
             })
         } catch (err) {
             const toReturn = errorHandler(err)
