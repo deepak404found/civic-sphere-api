@@ -9,6 +9,6 @@ java -jar swagger-codegen-cli-3.0.56.jar generate -i build/openapi.json -l types
 cp .npmrc build/chips-mis-api/.npmrc
 cd build/chips-mis-api
 
-echo "publishing @dk/chips-mis-api"
+echo "publishing @deepak404found/chips-mis-api"
 pnpm install
 npm publish

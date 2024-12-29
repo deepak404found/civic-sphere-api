@@ -26,7 +26,7 @@ export function validatePathVariables(schema: z.Schema<any>): RequestHandler {
 export function validateQueryParams(schema: z.Schema<any>): RequestHandler {
     return (req, res, next) => {
         try {
-            schema.parse(req.query)
+            req.query = schema.parse(req.query)
             // console.log('query', req.query, schema)
             next()
         } catch (error) {
