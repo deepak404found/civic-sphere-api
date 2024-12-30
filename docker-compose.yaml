@@ -6,20 +6,19 @@ services:
     restart: always
 
     environment:
-      - POSTGRESQL_USERNAME=dbadmin
-      - POSTGRESQL_PASSWORD=admin@123
-      - POSTGRESQL_DATABASE=chips
-    volumes:
-      - ./dataset:/docker-entrypoint-initdb.d
+      - POSTGRESQL_USERNAME=chipsAdmin
+      - POSTGRESQL_PASSWORD=chipsMIS@123
+      - POSTGRESQL_DATABASE=chips-mis
+      - POSTGRESQL_POSTGRES_PASSWORD=admin@123
     ports:
       - 5432:5432
 
-  chips-mis-api:
-    build: .
-    container_name: chips-mis-api
-    environment:
-      - PORT=3001
-    ports:
-      - '3001:3001'
-    depends_on:
-      - postgres
+  # chips-mis-api:
+  #   build: .
+  #   container_name: chips-mis-api
+  #   environment:
+  #     - PORT=3001
+  #   ports:
+  #     - '3001:3001'
+  #   depends_on:
+  #     - postgres

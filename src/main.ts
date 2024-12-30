@@ -67,10 +67,10 @@ const createSuperAdmin = async () => {
 async function main() {
     console.log('Starting server..')
 
+    await migration()
+
     // create a super admin user
     await createSuperAdmin()
-
-    await migration()
 
     app.listen(vars.PORT, () => {
         logger.info(`Server running on: http://localhost:${vars.PORT} 🚀`)
