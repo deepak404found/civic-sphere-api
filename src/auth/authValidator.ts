@@ -100,3 +100,5 @@ export const ValidateRole = (role: UserRoleEnum[]): RequestHandler => {
 }
 
 export const RoleAny = ValidateRole(Object.values(UserRoleEnum))
+
+export const ValidateAdminsApi = ValidateRole([UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN])

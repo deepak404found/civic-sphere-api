@@ -2,6 +2,7 @@ import { Router } from 'express'
 import employeesRouter from './employees/employees.routes'
 import loginRouter from './onboarding/onboarding.routes'
 import departmentsRouter from './departments/departments.routes'
+import { ValidateAdminsApi } from '../auth/authValidator'
 
 export const routes = {
     base: {
@@ -43,8 +44,8 @@ router.get(routes.base.healthcheck, (req, res) => {
 router.get('/', (req, res) => {
     res.json({ message: 'Welcome to the API' })
 })
-router.use(routes.employees.path, routes.employees.router)
-router.use(routes.departments.path, routes.departments.router)
+router.use(routes.employees.path, ValidateAdminsApi, routes.employees.router)
+router.use(routes.departments.path, ValidateAdminsApi, routes.departments.router)
 router.use(loginRouter)
 
 export default router

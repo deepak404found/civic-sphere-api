@@ -19,7 +19,7 @@ ENV NODE_ENV=production
 ENV PORT=3001
 ENV PG_HOST=172.27.153.152
 
-RUN pnpm migrate:generate
+# RUN pnpm migrate:generate
 
 RUN pnpm run build
 

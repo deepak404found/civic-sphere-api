@@ -1,6 +1,7 @@
 import app from './app'
 import { db } from './conn'
 import { hashPassword } from './controllers/employees'
+import { migration } from './db/migration'
 import { departmentsTable, IAddDepartment, insertDepartmentSchema } from './db/schema/departments.schema'
 import { employeesTable } from './db/schema/employees.schema'
 import { vars } from './env'
@@ -64,10 +65,12 @@ const createSuperAdmin = async () => {
 }
 
 async function main() {
-    console.log('Starting server...')
+    console.log('Starting server..')
 
     // create a super admin user
     await createSuperAdmin()
+
+    await migration()
 
     app.listen(vars.PORT, () => {
         logger.info(`Server running on: http://localhost:${vars.PORT} 🚀`)
