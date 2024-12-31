@@ -26,9 +26,11 @@ usersRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
         const localUser = res.locals.user as IUser
 
         // query to get users only from the same department if not super admin
-        const query = (users, { eq, and }) =>
+        const query = (users, { eq, and, not }) =>
             and(
-                localUser.role !== UserRoleEnum.SUPER_ADMIN ? eq(users.department, localUser.department.id) : undefined,
+                localUser.role !== UserRoleEnum.SUPER_ADMIN
+                    ? and(eq(users.department, localUser.department.id), not(eq(users.role, UserRoleEnum.SUPER_ADMIN)))
+                    : undefined,
                 search ? eq(users.full_name, search) : undefined
             )
 
@@ -77,10 +79,12 @@ usersRouter.get('/:uid', RoleAny, async (req, res) => {
 
         // check if the user is from the same department if not super admin
         const user = await db.query.usersTable.findFirst({
-            where: (users, { eq, and }) =>
+            where: (users, { eq, and, not }) =>
                 and(
                     eq(users.id, uid),
-                    localUser.role !== UserRoleEnum.SUPER_ADMIN ? eq(users.department, localUser.department.id) : undefined
+                    localUser.role !== UserRoleEnum.SUPER_ADMIN
+                        ? and(eq(users.department, localUser.department.id), not(eq(users.role, UserRoleEnum.SUPER_ADMIN)))
+                        : undefined
                 ),
             with: {
                 department: true
@@ -110,6 +114,10 @@ usersRouter.put(
         try {
             const newUser = req.body as IAddUser
             const localUser = res.locals.user as IUser
+
+            // admin can only create user
+            if (localUser.role === UserRoleEnum.ADMIN && newUser.role !== UserRoleEnum.User)
+                throw new BadRequestError('Admin can only access user')
 
             // check if user already exists by district name
             const checkUserQuery = await db.query.usersTable.findFirst({
@@ -166,6 +174,10 @@ usersRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN]), async (req
 
         if (!user) throw new NotFoundError('User not found')
 
+        // admin can only delete user
+        if (localUser.role === UserRoleEnum.ADMIN && user.role !== UserRoleEnum.User)
+            throw new BadRequestError('Admin can only access user')
+
         const result = await db.delete(usersTable).where(eq(usersTable.id, uid)).returning()
 
         if (!result) throw new NotFoundError('User is not deleted')
@@ -208,6 +220,10 @@ usersRouter.patch(
             })
 
             if (!user) throw new NotFoundError('User not found')
+
+            // admin can only update user
+            if (localUser.role === UserRoleEnum.ADMIN && updatedUser.role !== UserRoleEnum.User)
+                throw new BadRequestError('Admin can only access user')
 
             if (
                 Object.keys(updatedUser).every((key) => {

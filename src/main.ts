@@ -18,7 +18,7 @@ const createSuperAdmin = async () => {
             email: 'admin@mail.com',
             phone: '1234567890',
             district_id: 1,
-            district_name_en: 'district',
+            district_name_en: 'admin',
             district_name_hi: 'जिला'
         }
 
