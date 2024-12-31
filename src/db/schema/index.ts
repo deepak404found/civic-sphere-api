@@ -1,2 +1,2 @@
-export { employeesTable, employeesDepartmentRelation } from './employees.schema'
+export { usersTable, usersDepartmentRelation } from './users.schema'
 export { departmentsTable } from './departments.schema'

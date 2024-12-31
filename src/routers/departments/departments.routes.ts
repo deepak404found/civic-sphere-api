@@ -10,8 +10,8 @@ import {
     IUpdateDepartment,
     updateDepartmentSchema
 } from '../../db/schema/departments.schema'
-import { UserRoleEnum } from '../../db/schema/employees.schema'
-import { BadRequestError, errorHandler } from '../../helpers/errorHandler'
+import { IUser, UserRoleEnum } from '../../db/schema/users.schema'
+import { BadRequestError, errorHandler, NotFoundError } from '../../helpers/errorHandler'
 import { ListQueryParamsType, validateListQueryParams, validateRequestBody } from '../../helpers/zodValidator'
 
 const departmentsRouter = Router()
@@ -19,7 +19,7 @@ const departmentsRouter = Router()
 departmentsRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
     try {
         const { skip, limit, search, sortBy, sortOrder } = req.query as unknown as ListQueryParamsType
-        const employee = res.locals.employee
+        const localUser = res.locals.user
         const sortByColumn = sortBy ? sortBy : 'createdAt'
 
         const departments = await db.query.departmentsTable.findMany({
@@ -27,8 +27,8 @@ departmentsRouter.get('/', RoleAny, validateListQueryParams, async (req, res) =>
             limit: limit,
             where: (departments, { like, eq, and }) =>
                 and(
-                    // if employee role is employee, only show the department they belong to
-                    employee.role === UserRoleEnum.EMPLOYEE ? eq(departments.id, employee.department) : undefined,
+                    // if user is not super admin, get only the department of the user
+                    localUser.role !== UserRoleEnum.SUPER_ADMIN ? eq(departments.id, localUser.department.id) : undefined,
                     search ? like(departments.name, `%${search}%`) : undefined
                 ),
             orderBy: (departments, { asc, desc }) => {
@@ -63,12 +63,18 @@ departmentsRouter.get('/', RoleAny, validateListQueryParams, async (req, res) =>
 departmentsRouter.get('/:id', RoleAny, async (req, res) => {
     try {
         const { id } = req.params
+        const localUser = res.locals.user
 
         const department = await db.query.departmentsTable.findFirst({
-            where: (departments, { eq }) => eq(departments.id, id)
+            where: (departments, { eq, and }) =>
+                and(
+                    eq(departments.id, id),
+                    // if user is not super admin, get only the department of the user
+                    localUser.role !== UserRoleEnum.SUPER_ADMIN ? eq(departments.id, localUser.department.id) : undefined
+                )
         })
 
-        if (!department) throw new BadRequestError('Department not found')
+        if (!department) throw new NotFoundError('Department not found')
 
         res.status(200).json({
             message: 'Department fetched successfully',
@@ -83,39 +89,34 @@ departmentsRouter.get('/:id', RoleAny, async (req, res) => {
     }
 })
 
-departmentsRouter.put(
-    '/add',
-    ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]),
-    validateRequestBody(insertDepartmentSchema),
-    async (req, res) => {
-        try {
-            const newDepartment = req.body as IAddDepartment
+departmentsRouter.put('/add', ValidateRole([UserRoleEnum.SUPER_ADMIN]), validateRequestBody(insertDepartmentSchema), async (req, res) => {
+    try {
+        const newDepartment = req.body as IAddDepartment
 
-            // check if department already exists by name
-            const checkDepartmentQuery = await db.query.departmentsTable.findFirst({
-                where: (departments, { eq }) => eq(departments.name, newDepartment.name)
-            })
-            console.log('checkDepartmentQuery', checkDepartmentQuery)
-            if (checkDepartmentQuery) throw new BadRequestError('Department already exists')
+        // check if department already exists by name
+        const checkDepartmentQuery = await db.query.departmentsTable.findFirst({
+            where: (departments, { eq }) => eq(departments.name, newDepartment.name)
+        })
 
-            const result = await db.insert(departmentsTable).values(newDepartment).returning()
-            // console.log('result', result)
+        if (checkDepartmentQuery) throw new BadRequestError('Department already exists')
 
-            res.status(200).json({
-                message: 'Department added successfully',
-                payload: result[0]
-            })
-        } catch (err) {
-            const toReturn = errorHandler(err)
-            res.status(toReturn.code).json({
-                message: toReturn.message,
-                name: toReturn.name
-            })
-        }
+        const result = await db.insert(departmentsTable).values(newDepartment).returning()
+        // console.log('result', result)
+
+        res.status(200).json({
+            message: 'Department added successfully',
+            payload: result[0]
+        })
+    } catch (err) {
+        const toReturn = errorHandler(err)
+        res.status(toReturn.code).json({
+            message: toReturn.message,
+            name: toReturn.name
+        })
     }
-)
+})
 
-departmentsRouter.delete('/:id', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]), async (req, res) => {
+departmentsRouter.delete('/:id', ValidateRole([UserRoleEnum.SUPER_ADMIN]), async (req, res) => {
     try {
         const { id } = req.params
 
@@ -123,7 +124,7 @@ departmentsRouter.delete('/:id', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRol
             where: (departments, { eq }) => eq(departments.id, id)
         })
 
-        if (!department) throw new BadRequestError('Department not found')
+        if (!department) throw new NotFoundError('Department not found')
 
         const result = await db.delete(departmentsTable).where(eq(departmentsTable.id, id)).returning()
 
@@ -149,12 +150,18 @@ departmentsRouter.patch(
         try {
             const { id } = req.params
             const updatedDepartment = req.body as IUpdateDepartment
+            const localUser = res.locals.user as IUser
 
             const department = await db.query.departmentsTable.findFirst({
-                where: (departments, { eq }) => eq(departments.id, id)
+                where: (departments, { eq, and }) =>
+                    and(
+                        eq(departments.id, id),
+                        // if user is not super admin, get only the department of the user
+                        localUser.role !== UserRoleEnum.SUPER_ADMIN ? eq(departments.id, localUser.department.id) : undefined
+                    )
             })
 
-            if (!department) throw new BadRequestError('Department not found')
+            if (!department) throw new NotFoundError('Department not found')
 
             if (
                 Object.keys(updatedDepartment).every((key) => {

@@ -3,15 +3,15 @@ import { z } from 'zod'
 import { GenerateJWT } from '../../auth/authValidator'
 import { db } from '../../conn'
 import { fetchDepartmentById } from '../../controllers/departments'
-import { verifyPassword } from '../../controllers/employees'
-import { employeeSchema, insertEmployeeSchema, UserRoleEnum } from '../../db/schema/employees.schema'
+import { verifyPassword } from '../../controllers/users'
+import { userschema, insertuserschema, UserRoleEnum } from '../../db/schema/users.schema'
 import { BadRequestError, errorHandler, ForbiddenError } from '../../helpers/errorHandler'
 import { validateRequestBody } from '../../helpers/zodValidator'
 
 const loginRouter = Router()
 
-const LoginSchema = insertEmployeeSchema.pick({
-    email: true,
+const LoginSchema = insertuserschema.pick({
+    district_name_en: true,
     pass: true
 })
 
@@ -19,8 +19,8 @@ loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) =>
     try {
         const loginData = req.body as z.infer<typeof LoginSchema>
 
-        const result = await db.query.employeesTable.findFirst({
-            where: (employees, { eq }) => eq(employees.email, loginData.email),
+        const result = await db.query.usersTable.findFirst({
+            where: (users, { eq }) => eq(users.district_name_en, loginData.district_name_en),
             with: {
                 department: true
             }
@@ -30,7 +30,7 @@ loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) =>
         if (!result || !validPass) throw new BadRequestError('Invalid Credentials')
 
         const token = GenerateJWT({
-            email: loginData.email,
+            districtName: loginData.district_name_en,
             department: result?.department?.name as string,
             role: result.role as UserRoleEnum
         })
@@ -38,7 +38,7 @@ loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) =>
         res.status(200).json({
             message: 'logged in',
             token,
-            user: employeeSchema.parse(result)
+            user: userschema.parse(result)
         })
     } catch (error) {
         // console.log(error)

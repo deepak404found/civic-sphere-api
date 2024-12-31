@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import employeesRouter from './employees/employees.routes'
+import usersRouter from './users/users.routes'
 import loginRouter from './onboarding/onboarding.routes'
 import departmentsRouter from './departments/departments.routes'
 import { ValidateAdminsApi } from '../auth/authValidator'
@@ -20,15 +20,15 @@ export const routes = {
             summary: '/summary'
         }
     },
-    employees: {
-        path: '/employees',
-        router: employeesRouter,
+    users: {
+        path: '/users',
+        router: usersRouter,
         subRoutes: {
-            getEmployees: '/',
-            addEmployee: '/add',
-            getEmployee: '/:uid',
-            deleteEmployee: '/:uid',
-            updateEmployee: '/:uid'
+            getusers: '/',
+            addUser: '/add',
+            getUser: '/:uid',
+            deleteUser: '/:uid',
+            updateUser: '/:uid'
         }
     },
     departments: {
@@ -52,7 +52,7 @@ router.get(routes.base.healthcheck, (req, res) => {
 router.get('/', (req, res) => {
     res.json({ message: 'Welcome to the API' })
 })
-router.use(routes.employees.path, ValidateAdminsApi, routes.employees.router)
+router.use(routes.users.path, ValidateAdminsApi, routes.users.router)
 router.use(routes.departments.path, ValidateAdminsApi, routes.departments.router)
 router.use(routes.dashboard.path, ValidateAdminsApi, routes.dashboard.router)
 router.use(loginRouter)

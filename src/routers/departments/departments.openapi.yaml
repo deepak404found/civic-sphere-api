@@ -179,7 +179,7 @@ paths:
     get:
       tags:
         - Department
-      summary: Get Departments list with pagination. If user is employee, only the department he belongs to will be returned.
+      summary: Get Departments list with pagination. If user is user, only the department he belongs to will be returned.
       operationId: GetDepartments
       parameters:
         - in: query

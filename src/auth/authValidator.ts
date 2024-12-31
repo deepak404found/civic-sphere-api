@@ -1,12 +1,12 @@
 import { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import { db } from '../conn'
-import { UserRoleEnum } from '../db/schema/employees.schema'
+import { UserRoleEnum } from '../db/schema/users.schema'
 import { vars } from '../env'
 import { errorHandler, UnauthorizedError } from '../helpers/errorHandler'
 
 export type TokenData = {
-    email: string
+    districtName: string
     role: UserRoleEnum
     department: string
     iat: number
@@ -17,8 +17,8 @@ export type TokenError = {
     name: 'TokenExpiredError' | 'JsonWebTokenError' | 'NotBeforeError'
 }
 
-export type IPartialEmployee = {
-    email?: string
+export type IPartialUser = {
+    districtName?: string
     department?: string
     role?: UserRoleEnum
 }
@@ -29,7 +29,7 @@ export function tokenIsError(token: TokenResult): token is TokenError {
     return (token as TokenError).name !== undefined
 }
 
-export const GenerateJWT = (payload: IPartialEmployee) => {
+export const GenerateJWT = (payload: IPartialUser) => {
     return jwt.sign(payload, vars.JWT_SECRET, { expiresIn: vars.JWT_EXPIRY })
 }
 
@@ -75,17 +75,20 @@ export const ValidateRole = (role: UserRoleEnum[]): RequestHandler => {
                 throw new UnauthorizedError('Invalid Role')
             }
 
-            // query the db for the employee
-            const employee = await db.query.employeesTable.findFirst({
-                where: (employees, { eq }) => eq(employees.email, tokenResults.email)
+            // query the db for the user
+            const user = await db.query.usersTable.findFirst({
+                where: (users, { eq }) => eq(users.district_name_en, tokenResults.districtName),
+                with: {
+                    department: true
+                }
             })
 
-            if (!employee) {
+            if (!user) {
                 throw new UnauthorizedError('Invalid Token')
             }
 
-            // set the employee in the request object
-            res.locals.employee = employee
+            // set the user in the request object
+            res.locals.user = user
 
             next()
         } catch (error) {

@@ -1,9 +1,9 @@
 import app from './app'
 import { db } from './conn'
-import { hashPassword } from './controllers/employees'
+import { hashPassword } from './controllers/users'
 import { migration } from './db/migration'
 import { departmentsTable, IAddDepartment, insertDepartmentSchema } from './db/schema/departments.schema'
-import { employeesTable } from './db/schema/employees.schema'
+import { IAddUser, usersTable } from './db/schema/users.schema'
 import { vars } from './env'
 import { logger } from './helpers/logger'
 import swaggerDocs from './helpers/swagger'
@@ -16,7 +16,10 @@ const createSuperAdmin = async () => {
             pass: 'Admin@12345',
             full_name: 'Super admin',
             email: 'admin@mail.com',
-            phone: '1234567890'
+            phone: '1234567890',
+            district_id: 1,
+            district_name_en: 'district',
+            district_name_hi: 'जिला'
         }
 
         const department: IAddDepartment = {
@@ -27,8 +30,8 @@ const createSuperAdmin = async () => {
         }
 
         // check if super admin exists
-        const superAdminExists = await db.query.employeesTable.findFirst({
-            where: (employees, { eq }) => eq(employees.email, superAdmin.email)
+        const superAdminExists = await db.query.usersTable.findFirst({
+            where: (users, { eq }) => eq(users.email, superAdmin.email)
         })
 
         if (superAdminExists) {
@@ -37,21 +40,33 @@ const createSuperAdmin = async () => {
             return
         }
 
-        // create department
-        const dept = await db
-            .insert(departmentsTable)
-            .values(department)
-            .returning({
-                id: departmentsTable.id
-            })
-            .execute()
+        let deptId: string
+
+        // create department if not exists
+        const checkDepartmentQuery = await db.query.departmentsTable.findFirst({
+            where: (departments, { eq }) => eq(departments.name, department.name)
+        })
+
+        if (!checkDepartmentQuery) {
+            const newDept = await db
+                .insert(departmentsTable)
+                .values(department)
+                .returning({
+                    id: departmentsTable.id
+                })
+                .execute()
+
+            deptId = newDept[0].id
+        } else {
+            deptId = checkDepartmentQuery.id
+        }
 
         // create super admin
         await db
-            .insert(employeesTable)
+            .insert(usersTable)
             .values({
                 ...superAdmin,
-                department: dept[0].id,
+                department: deptId,
                 pass: await hashPassword(superAdmin.pass)
             })
             .execute()

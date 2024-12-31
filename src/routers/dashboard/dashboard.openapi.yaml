@@ -49,8 +49,8 @@ components:
           description: Total number of departments
           default: 0
           example: 5
-        totalEmployees:
+        totalusers:
           type: integer
-          description: Total number of employees
+          description: Total number of users
           default: 0
           example: 100

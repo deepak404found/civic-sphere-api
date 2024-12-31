@@ -1,10 +1,10 @@
 paths:
-  /employees/{uid}:
+  /users/{uid}:
     get:
       tags:
-        - Employee
-      summary: Get Employee details by ID
-      operationId: GetEmployeeById
+        - User
+      summary: Get User details by ID
+      operationId: GetUserById
       parameters:
         - in: path
           name: uid
@@ -22,9 +22,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Employee fetched successfully"
+                    example: "User fetched successfully"
                   payload:
-                    $ref: "#/components/schemas/Employee"
+                    $ref: "#/components/schemas/User"
         "400":
           description: Bad Request
           content:
@@ -51,9 +51,9 @@ paths:
                 $ref: "#/components/schemas/InternalServerError"
     patch:
       tags:
-        - Employee
-      summary: Update Employee details by ID
-      operationId: UpdateEmployeeById
+        - User
+      summary: Update User details by ID
+      operationId: UpdateUserById
       parameters:
         - in: path
           name: uid
@@ -66,33 +66,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: "sample@mail.com"
-                  default: "sample@mail.com"
-                  description: Email of the employee
-                role:
-                  type: string
-                  example: "employee"
-                  default: "employee"
-                  description: Role of the employee (employee/admin)
-                department:
-                  type: string
-                  example: "raipur"
-                  default: "raipur"
-                  description: Department name
-                full_name:
-                  type: string
-                  example: "John Doe"
-                  default: "John Doe"
-                  description: Full Name of the employee
-                phone:
-                  type: string
-                  example: "1234567890"
-                  default: "1234567890"
-                  description: Phone number of the employee
+              $ref: "#/components/schemas/UpdateUserForm"
       responses:
         "200":
           description: OK
@@ -103,9 +77,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Employee updated successfully"
+                    example: "User updated successfully"
                   payload:
-                    $ref: "#/components/schemas/Employee"
+                    $ref: "#/components/schemas/User"
         "400":
           description: Bad Request
           content:
@@ -132,9 +106,9 @@ paths:
                 $ref: "#/components/schemas/InternalServerError"
     delete:
       tags:
-        - Employee
-      summary: Delete Employee by ID
-      operationId: DeleteEmployeeById
+        - User
+      summary: Delete User by ID
+      operationId: DeleteUserById
       parameters:
         - in: path
           name: uid
@@ -152,9 +126,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Employee deleted successfully"
+                    example: "User deleted successfully"
                   payload:
-                    $ref: "#/components/schemas/Employee"
+                    $ref: "#/components/schemas/User"
         "400":
           description: Bad Request
           content:
@@ -180,12 +154,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
 
-  /employees:
+  /users:
     get:
       tags:
-        - Employee
-      summary: Get Employees List
-      operationId: GetEmployees
+        - User
+      summary: Get users List
+      operationId: Getusers
       parameters:
         - in: query
           name: skip
@@ -230,14 +204,14 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Employees fetched successfully"
+                    example: "users fetched successfully"
                   payload:
                     type: object
                     properties:
-                      employees:
+                      users:
                         type: array
                         items:
-                          $ref: "#/components/schemas/Employee"
+                          $ref: "#/components/schemas/User"
                       total:
                         type: integer
                         example: 1
@@ -260,18 +234,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
 
-  /employees/add:
+  /users/add:
     put:
       tags:
-        - Employee
-      summary: Add Employee
-      operationId: AddEmployee
+        - User
+      summary: Add User
+      operationId: AddUser
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AddEmployeeForm"
+              $ref: "#/components/schemas/AddUserForm"
       responses:
         "200":
           description: OK
@@ -282,9 +256,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Employee added successfully"
+                    example: "User added successfully"
                   payload:
-                    $ref: "#/components/schemas/Employee"
+                    $ref: "#/components/schemas/User"
         "400":
           description: Bad Request
           content:
@@ -306,7 +280,7 @@ paths:
 
 components:
   schemas:
-    Employee:
+    User:
       type: object
       properties:
         id:
@@ -334,31 +308,45 @@ components:
           format: date-time
           description: Date of creation
           example: "2021-08-10T09:00:00Z"
+        district_id:
+          type: string
+          description: District ID
+          example: "123"
+        district_name_en:
+          type: string
+          description: District Name in English
+          example: "Raipur"
+        district_name_hi:
+          type: string
+          description: District Name in Hindi
+          example: "रायपुर"
       required:
         - id
         - email
         - role
         - createdAt
+
     UserRoleEnum:
       type: string
       description: Role of the user
       enum:
-        - employee
+        - user
         - admin
-    AddEmployeeForm:
+        - superadmin
+
+    AddUserForm:
       type: object
       properties:
         email:
           type: string
           example: "sample@mail.com"
           default: "sample@mail.com"
-          description: Email of the employee
-          required: true
+          description: Email of the user
         role:
           type: string
-          example: "employee"
-          default: "employee"
-          description: Role of the employee (employee/admin)
+          example: "user"
+          default: "user"
+          description: Role of the user (user/admin)
           required: true
         department:
           type: string
@@ -370,15 +358,78 @@ components:
           type: string
           example: "password"
           default: "password"
-          description: Password of the employee
+          description: Password of the user
           required: true
         full_name:
           type: string
           example: "John Doe"
           default: "John Doe"
-          description: Full Name of the employee
+          description: Full Name of the user
         phone:
           type: string
           example: "1234567890"
           default: "1234567890"
-          description: Phone number of the employee
+          description: Phone number of the user
+        district_id:
+          type: string
+          example: "123"
+          default: "123"
+          description: District ID of the user
+          required: true
+        district_name_en:
+          type: string
+          example: "Raipur"
+          default: "Raipur"
+          description: District Name in English
+          required: true
+        district_name_hi:
+          type: string
+          example: "रायपुर"
+          default: "रायपुर"
+          description: District Name in Hindi
+          required: true
+
+    UpdateUserForm:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "sample@mail.com"
+          default: "sample@mail.com"
+          description: Email of the user
+        role:
+          type: string
+          example: "user"
+          default: "user"
+          description: Role of the user (user/admin)
+        department:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          default: "123e4567-e89b-12d3-a456-426614174000"
+          description: Department ID
+          required: true
+        full_name:
+          type: string
+          example: "John Doe"
+          default: "John Doe"
+          description: Full Name of the user
+        phone:
+          type: string
+          example: "1234567890"
+          default: "1234567890"
+          description: Phone number of the user
+        district_id:
+          type: string
+          example: "123"
+          default: "123"
+          description: District ID of the user
+        district_name_en:
+          type: string
+          example: "Raipur"
+          default: "Raipur"
+          description: District Name in English
+        district_name_hi:
+          type: string
+          example: "रायपुर"
+          default: "रायपुर"
+          description: District Name in Hindi

@@ -1,7 +1,7 @@
 import { count } from 'drizzle-orm'
 import { Router } from 'express'
 import { db } from '../../conn'
-import { departmentsTable, employeesTable } from '../../db/schema'
+import { departmentsTable, usersTable } from '../../db/schema'
 
 const dashboardRoutes = Router()
 
@@ -13,9 +13,9 @@ dashboardRoutes.get('/summary', async (req, res) => {
             .execute()
             .then((data) => data[0].count)
 
-        const employeesCount = await db
+        const usersCount = await db
             .select({ count: count() })
-            .from(employeesTable)
+            .from(usersTable)
             .execute()
             .then((data) => data[0].count)
 
@@ -23,7 +23,7 @@ dashboardRoutes.get('/summary', async (req, res) => {
             message: 'Dashboard summary fetched',
             payload: {
                 totalDepartments: deptCount,
-                totalEmployees: employeesCount
+                totalusers: usersCount
             }
         })
     } catch (error) {

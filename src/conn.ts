@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
-import { employeesTable } from './db/schema/employees.schema'
+import { usersTable } from './db/schema/users.schema'
 import { vars } from './env'
 import { departmentsTable } from './db/schema/departments.schema'
 import * as schema from './db/schema/'

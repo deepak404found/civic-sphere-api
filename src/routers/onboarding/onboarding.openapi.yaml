@@ -36,11 +36,11 @@ components:
     LoginRequest:
       type: object
       properties:
-        email:
+        district_name_en:
           type: string
-          description: The email of the user
-          example: "sample@mail.com"
-          default: "sample@mail.com"
+          description: The district name in English
+          example: "Raipur"
+          default: "Raipur"
         pass:
           type: string
           description: The password of the user
@@ -62,4 +62,4 @@ components:
           description: The token for the user
           example: "token"
         user:
-          $ref: "#/components/schemas/Employee"
+          $ref: "#/components/schemas/User"
