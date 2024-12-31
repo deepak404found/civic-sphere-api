@@ -40,15 +40,17 @@ const options: swaggerJsdoc.Options = {
             },
             {
                 name: 'User',
-                description: 'User related routes'
+                description:
+                    'User related routes only for admins and super admins. Super admins can access all users while admins can access only their department users'
             },
             {
                 name: 'Department',
-                description: 'Department related routes'
+                description:
+                    'Department related routes only for admins and super admins. Super admins can access all departments while admins can access only their department'
             },
             {
                 name: 'Dashboard',
-                description: 'Dashboard related routes'
+                description: 'Dashboard related routes only for admins and super admins to get summary according to their accessibilities'
             }
         ],
         externalDocs: {
