@@ -4,7 +4,7 @@
     "allowUnicodeIdentifiers": false,
     "modelPropertyNaming": "original",
     "supportsES6": false,
-    "npmVersion": "0.0.1",
+    "npmVersion": "0.0.5",
     "npmName": "@deepak404found/chips-mis-api",
     "npmRepository": "https://npm.pkg.github.com"
 }

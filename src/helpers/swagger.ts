@@ -45,6 +45,10 @@ const options: swaggerJsdoc.Options = {
             {
                 name: 'Department',
                 description: 'Department related routes'
+            },
+            {
+                name: 'Dashboard',
+                description: 'Dashboard related routes'
             }
         ],
         externalDocs: {

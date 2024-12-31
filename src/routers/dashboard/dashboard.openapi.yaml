@@ -1,0 +1,56 @@
+paths:
+  /dashboard/summary:
+    get:
+      summary: Get summary
+      description: Get summary of the dashboard
+      operationId: getDashboardSummary
+      tags:
+        - Dashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Message
+                    example: Summary fetched successfully
+                  payload:
+                    $ref: "#/components/schemas/DashboardSummary"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+components:
+  schemas:
+    DashboardSummary:
+      type: object
+      properties:
+        totalDepartments:
+          type: integer
+          description: Total number of departments
+          default: 0
+          example: 5
+        totalEmployees:
+          type: integer
+          description: Total number of employees
+          default: 0
+          example: 100

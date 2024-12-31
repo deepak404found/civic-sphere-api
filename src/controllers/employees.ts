@@ -46,7 +46,7 @@ export async function insertEmployee(data: IAddEmployee) {
             console.error(err)
             throw new Error('Error inserting employee')
         })) as unknown as IEmployee
-    console.log('employee', employee)
+    // console.log('employee', employee)
 
     return employeeSchema.parse(employee)
 }
@@ -65,7 +65,7 @@ export const fetchEmployeeByEmail = async (email: string) => {
             department: true
         }
     })
-    console.log('employee', employee)
+    // console.log('employee', employee)
 
     if (!employee) throw new NotFoundError('Employee not found')
 

@@ -23,7 +23,6 @@ employeesRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
         const { skip, limit, search, sortBy, sortOrder } = req.query as unknown as ListQueryParamsType
 
         const sortByColumn = sortBy ? sortBy : 'createdAt'
-        console.log('skip', skip, 'limit', limit)
         const employees = await db.query.employeesTable.findMany({
             offset: parseInt(skip.toString()),
             limit: parseInt(limit.toString()),
@@ -63,7 +62,7 @@ employeesRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
 employeesRouter.get('/:uid', RoleAny, async (req, res) => {
     try {
         const { uid } = req.params
-        console.log('uid', uid)
+        // console.log('uid', uid)
 
         const employee = await db.query.employeesTable.findFirst({
             where: (employees, { eq }) => eq(employees.id, uid),

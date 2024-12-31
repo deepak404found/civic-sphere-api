@@ -3,6 +3,7 @@ import employeesRouter from './employees/employees.routes'
 import loginRouter from './onboarding/onboarding.routes'
 import departmentsRouter from './departments/departments.routes'
 import { ValidateAdminsApi } from '../auth/authValidator'
+import dashboardRoutes from './dashboard/dashboard.routes'
 
 export const routes = {
     base: {
@@ -10,6 +11,13 @@ export const routes = {
         healthcheck: '/healthcheck',
         subRoutes: {
             login: '/login'
+        }
+    },
+    dashboard: {
+        path: '/dashboard',
+        router: dashboardRoutes,
+        subRoutes: {
+            summary: '/summary'
         }
     },
     employees: {
@@ -46,6 +54,7 @@ router.get('/', (req, res) => {
 })
 router.use(routes.employees.path, ValidateAdminsApi, routes.employees.router)
 router.use(routes.departments.path, ValidateAdminsApi, routes.departments.router)
+router.use(routes.dashboard.path, ValidateAdminsApi, routes.dashboard.router)
 router.use(loginRouter)
 
 export default router
