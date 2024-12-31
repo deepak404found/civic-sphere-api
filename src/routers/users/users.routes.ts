@@ -3,12 +3,12 @@ import { RoleAny, ValidateRole } from '../../auth/authValidator'
 import { db } from '../../conn'
 import { insertUser } from '../../controllers/users'
 import {
-    userschema,
+    Userschema,
     usersTable,
     IAddUser,
-    insertuserschema,
+    insertUserschema,
     IUpdateUser,
-    updateuserschema,
+    updateUserschema,
     UserRoleEnum,
     IUser
 } from '../../db/schema/users.schema'
@@ -51,7 +51,7 @@ usersRouter.get('/', RoleAny, validateListQueryParams, async (req, res) => {
         res.status(200).json({
             message: 'users fetched',
             payload: {
-                users: users.map((user) => userschema.parse(user)),
+                users: users.map((user) => Userschema.parse(user)),
                 total: await db.query.usersTable
                     .findMany({
                         where: query
@@ -91,7 +91,7 @@ usersRouter.get('/:uid', RoleAny, async (req, res) => {
 
         res.status(200).json({
             message: 'User fetched successfully',
-            payload: userschema.parse(user)
+            payload: Userschema.parse(user)
         })
     } catch (error) {
         const toReturn = errorHandler(error)
@@ -105,7 +105,7 @@ usersRouter.get('/:uid', RoleAny, async (req, res) => {
 usersRouter.put(
     '/add',
     ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]),
-    validateRequestBody(insertuserschema),
+    validateRequestBody(insertUserschema),
     async (req, res) => {
         try {
             const newUser = req.body as IAddUser
@@ -147,7 +147,7 @@ usersRouter.put(
     }
 )
 
-usersRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]), async (req, res) => {
+usersRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN]), async (req, res) => {
     try {
         const { uid } = req.params
         const localUser = res.locals.user as IUser
@@ -172,7 +172,7 @@ usersRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum
 
         res.status(200).json({
             message: 'User deleted successfully',
-            payload: userschema.parse(user)
+            payload: Userschema.parse(user)
         })
     } catch (err) {
         const toReturn = errorHandler(err)
@@ -187,7 +187,7 @@ usersRouter.delete('/:uid', ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum
 usersRouter.patch(
     '/:uid',
     ValidateRole([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN]),
-    validateRequestBody(updateuserschema),
+    validateRequestBody(updateUserschema),
     async (req, res) => {
         try {
             const { uid } = req.params
@@ -229,7 +229,7 @@ usersRouter.patch(
             ) {
                 return res.status(200).json({
                     message: 'User updated successfully',
-                    payload: userschema.parse(user)
+                    payload: Userschema.parse(user)
                 }) as any
             }
 
@@ -269,7 +269,7 @@ usersRouter.patch(
 
             res.status(200).json({
                 message: 'User updated successfully',
-                payload: userschema.parse(result)
+                payload: Userschema.parse(result)
             })
         } catch (err) {
             const toReturn = errorHandler(err)

@@ -49,7 +49,7 @@ components:
           description: Total number of departments
           default: 0
           example: 5
-        totalusers:
+        totalUsers:
           type: integer
           description: Total number of users
           default: 0

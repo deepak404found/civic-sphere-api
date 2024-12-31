@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import { db } from '../conn'
-import { userschema, usersTable, IAddUser, IUser } from '../db/schema/users.schema'
+import { Userschema, usersTable, IAddUser, IUser } from '../db/schema/users.schema'
 import { NotFoundError, UnauthorizedError } from '../helpers/errorHandler'
 import { fetchDepartmentById, fetchDepartmentByName } from './departments'
 
@@ -53,7 +53,7 @@ export async function insertUser(data: IAddUser, localUser: IUser): Promise<IUse
         })) as unknown as IUser
     // console.log('user', user)
 
-    return userschema.parse(user)
+    return Userschema.parse(user)
 }
 
 /**
@@ -77,5 +77,5 @@ export const fetchUserByEmail = async (email: string) => {
     // fetch the department name
     const department = await fetchDepartmentById(user.department as string)
 
-    return userschema.parse({ ...user, department: department.name })
+    return Userschema.parse({ ...user, department: department.name })
 }

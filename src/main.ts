@@ -3,7 +3,7 @@ import { db } from './conn'
 import { hashPassword } from './controllers/users'
 import { migration } from './db/migration'
 import { departmentsTable, IAddDepartment, insertDepartmentSchema } from './db/schema/departments.schema'
-import { IAddUser, usersTable } from './db/schema/users.schema'
+import { IAddUser, UserRoleEnum, usersTable } from './db/schema/users.schema'
 import { vars } from './env'
 import { logger } from './helpers/logger'
 import swaggerDocs from './helpers/swagger'
@@ -11,7 +11,7 @@ import swaggerDocs from './helpers/swagger'
 const createSuperAdmin = async () => {
     try {
         const superAdmin = {
-            role: 'super_admin',
+            role: UserRoleEnum.SUPER_ADMIN,
             department: 'chips-cg',
             pass: 'Admin@12345',
             full_name: 'Super admin',

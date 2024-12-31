@@ -4,13 +4,13 @@ import { GenerateJWT } from '../../auth/authValidator'
 import { db } from '../../conn'
 import { fetchDepartmentById } from '../../controllers/departments'
 import { verifyPassword } from '../../controllers/users'
-import { userschema, insertuserschema, UserRoleEnum } from '../../db/schema/users.schema'
+import { Userschema, insertUserschema, UserRoleEnum } from '../../db/schema/users.schema'
 import { BadRequestError, errorHandler, ForbiddenError } from '../../helpers/errorHandler'
 import { validateRequestBody } from '../../helpers/zodValidator'
 
 const loginRouter = Router()
 
-const LoginSchema = insertuserschema.pick({
+const LoginSchema = insertUserschema.pick({
     district_name_en: true,
     pass: true
 })
@@ -38,7 +38,7 @@ loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) =>
         res.status(200).json({
             message: 'logged in',
             token,
-            user: userschema.parse(result)
+            user: Userschema.parse(result)
         })
     } catch (error) {
         // console.log(error)

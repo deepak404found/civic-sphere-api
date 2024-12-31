@@ -37,7 +37,7 @@ export const usersDepartmentRelation = relations(usersTable, ({ one }) => ({
 /**
  * Schema for inserting user
  */
-export const insertuserschema = createInsertSchema(usersTable, {
+export const insertUserschema = createInsertSchema(usersTable, {
     full_name: z.string().min(4).max(30).optional(),
     email: z.string().email().optional(),
     phone: z.string().min(10).max(12).optional(),
@@ -53,9 +53,9 @@ export const insertuserschema = createInsertSchema(usersTable, {
     id: true
 })
 
-export type IAddUser = z.infer<typeof insertuserschema>
+export type IAddUser = z.infer<typeof insertUserschema>
 
-export const updateuserschema = createUpdateSchema(usersTable, {
+export const updateUserschema = createUpdateSchema(usersTable, {
     full_name: z.string().min(4).max(30).optional(),
     email: z.string().email().optional(),
     phone: z.string().min(10).max(12).optional(),
@@ -71,12 +71,12 @@ export const updateuserschema = createUpdateSchema(usersTable, {
     id: true
 })
 
-export type IUpdateUser = z.infer<typeof updateuserschema>
+export type IUpdateUser = z.infer<typeof updateUserschema>
 
 /**
  * User schema without password to be used in response
  */
-export const userschema = createSelectSchema(usersTable)
+export const Userschema = createSelectSchema(usersTable)
     .omit({
         pass: true
     })
@@ -84,4 +84,4 @@ export const userschema = createSelectSchema(usersTable)
         department: departmentSchema
     })
 
-export type IUser = z.infer<typeof userschema>
+export type IUser = z.infer<typeof Userschema>
