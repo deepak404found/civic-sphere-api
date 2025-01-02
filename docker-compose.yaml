@@ -6,10 +6,10 @@ services:
     restart: always
 
     environment:
-      - POSTGRESQL_USERNAME=chipsAdmin
-      - POSTGRESQL_PASSWORD=chipsMIS@123
-      - POSTGRESQL_DATABASE=chips-mis
-      - POSTGRESQL_POSTGRES_PASSWORD=admin@123
+      - POSTGRESQL_USERNAME=chipsAdmin # This is the new username to access the database (currently using the default username and postgres password)
+      - POSTGRESQL_PASSWORD=chipsAdmin@123 # password for the new user
+      - POSTGRESQL_DATABASE=chips
+      - POSTGRESQL_POSTGRES_PASSWORD=admin@123 # This is the default password for the postgres user
     ports:
       - 5432:5432
 
