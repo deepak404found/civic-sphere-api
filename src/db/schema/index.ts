@@ -1,2 +1,3 @@
-export { usersTable, usersDepartmentRelation } from './users.schema'
 export { departmentsTable } from './departments.schema'
+export { resetPasswordTable, resetPassUserRelation } from './resetPassword.schema'
+export { usersDepartmentRelation, usersTable } from './users.schema'

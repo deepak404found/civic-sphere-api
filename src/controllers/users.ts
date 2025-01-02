@@ -74,8 +74,5 @@ export const fetchUserByEmail = async (email: string) => {
 
     if (!user) throw new NotFoundError('User not found')
 
-    // fetch the department name
-    const department = await fetchDepartmentById(user.department as string)
-
-    return Userschema.parse({ ...user, department: department.name })
+    return Userschema.parse(user)
 }

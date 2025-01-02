@@ -39,6 +39,10 @@ const options: swaggerJsdoc.Options = {
                 description: 'Onboarding related routes'
             },
             {
+                name: 'ResetPassword',
+                description: 'Reset password related routes. User can reset their password using OTP verification'
+            },
+            {
                 name: 'User',
                 description:
                     'User related routes only for admins and super admins. Super admins can access all users while admins can access only their department users'

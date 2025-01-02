@@ -1,0 +1,232 @@
+paths:
+  /resetPassword/generateOtp:
+    post:
+      tags:
+        - ResetPassword
+      summary: Generate OTP for password reset
+      operationId: generateOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/generateOtpForm"
+      responses:
+        "200":
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/generateOtpResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+  /resetPassword/verifyOtp:
+    post:
+      tags:
+        - ResetPassword
+      summary: Verify OTP for password reset
+      operationId: verifyOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/verifyOtpForm"
+      responses:
+        "200":
+          description: OTP verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/verifyOtpResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+  /resetPassword:
+    post:
+      tags:
+        - ResetPassword
+      summary: Reset password with new password after OTP verification
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/resetPassForm"
+      responses:
+        "200":
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resetPassResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+components:
+  schemas:
+    generateOtpForm:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "sample@gmail.com"
+          default: "sample@gmail.com"
+      required:
+        - email
+
+    generateOtpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        payload:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: "sample@gmail.com"
+              default: "sample@gmail.com"
+            request_id:
+              type: string
+              example: "123e4567-e89b-12d3-a456-426614174000"
+              default: "123e4567-e89b-12d3-a456-426614174000"
+              description: Request id for OTP verification
+              required: true
+      required:
+        - message
+        - payload
+
+    verifyOtpForm:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "sample@gmail.com"
+          default: "sample@gmail.com"
+        otp:
+          type: string
+          minLength: 6
+          maxLength: 6
+          example: "123456"
+          default: "123456"
+        request_id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          default: "123e4567-e89b-12d3-a456-426614174000"
+          description: Request id for OTP verification
+          required: true
+      required:
+        - email
+        - otp
+        - request_id
+
+    verifyOtpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        payload:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: "sample@mail.com"
+              default: "sample@mail.com"
+            request_id:
+              type: string
+              example: "123e4567-e89b-12d3-a456-426614174000"
+              default: "123e4567-e89b-12d3-a456-426614174000"
+              description: Request id for Reset Password
+      required:
+        - message
+        - payload
+
+    resetPassForm:
+      type: object
+      properties:
+        request_id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          default: "123e4567-e89b-12d3-a456-426614174000"
+          description: Request id for Reset Password
+          required: true
+        password:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: "Password123"
+          default: "Password123"
+      required:
+        - request_id
+        - password
+
+    resetPassResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Password reset successfully"
+        payload:
+          type: boolean
+          example: true

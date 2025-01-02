@@ -8,14 +8,14 @@ import { Userschema, insertUserschema, UserRoleEnum } from '../../db/schema/user
 import { BadRequestError, errorHandler, ForbiddenError } from '../../helpers/errorHandler'
 import { validateRequestBody } from '../../helpers/zodValidator'
 
-const loginRouter = Router()
+const onboardingRouter = Router()
 
 const LoginSchema = insertUserschema.pick({
     district_name_en: true,
     pass: true
 })
 
-loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) => {
+onboardingRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) => {
     try {
         const loginData = req.body as z.infer<typeof LoginSchema>
 
@@ -50,4 +50,4 @@ loginRouter.post('/login', validateRequestBody(LoginSchema), async (req, res) =>
     }
 })
 
-export default loginRouter
+export default onboardingRouter

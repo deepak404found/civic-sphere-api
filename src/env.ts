@@ -12,6 +12,11 @@ export const vars = {
 
     SWAGGER_THEME: process.env?.SWAGGER_THEME || SwaggerThemeNameEnum.ONE_DARK,
 
+    EMAIL: process.env?.EMAIL || 'sample@mail.com',
+    EMAIL_PASS: process.env?.EMAIL_PASS || 'password',
+    NODEMAILER_LOGGER: process.env?.NODEMAILER_LOGGER === 'true' || false,
+    NODEMAILER_DEBUG: process.env?.NODEMAILER_DEBUG === 'true' || false,
+
     JWT_SECRET: process.env?.JWT_SECRET || 'secret',
     JWT_EXPIRY: process.env?.JWT_EXPIRY || '1h'
 }

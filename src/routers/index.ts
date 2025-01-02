@@ -1,17 +1,26 @@
 import { Router } from 'express'
 import usersRouter from './users/users.routes'
-import loginRouter from './onboarding/onboarding.routes'
+import onboardingRouter from './onboarding/onboarding.routes'
 import departmentsRouter from './departments/departments.routes'
 import { ValidateAdminsApi, ValidateRole } from '../auth/authValidator'
 import dashboardRoutes from './dashboard/dashboard.routes'
 import { UserRoleEnum } from '../db/schema/users.schema'
+import resetPassRouter from './onboarding/resetPass/resetPass.routes'
 
 export const routes = {
-    base: {
+    onboarding: {
         path: '/',
-        healthcheck: '/healthcheck',
+        router: onboardingRouter,
         subRoutes: {
             login: '/login'
+        },
+        healthcheck: '/healthcheck'
+    },
+    resetPassword: {
+        path: '/resetPassword',
+        router: resetPassRouter,
+        subRoutes: {
+            generateOtp: '/generateOtp'
         }
     },
     dashboard: {
@@ -47,7 +56,7 @@ export const routes = {
 
 const router = Router()
 
-router.get(routes.base.healthcheck, (req, res) => {
+router.get(routes.onboarding.healthcheck, (req, res) => {
     res.json({ message: 'Service is healthy' })
 })
 router.get('/', (req, res) => {
@@ -56,6 +65,7 @@ router.get('/', (req, res) => {
 router.use(routes.users.path, ValidateAdminsApi, routes.users.router)
 router.use(routes.departments.path, ValidateRole([UserRoleEnum.SUPER_ADMIN]), routes.departments.router)
 router.use(routes.dashboard.path, ValidateAdminsApi, routes.dashboard.router)
-router.use(loginRouter)
+router.use(routes.onboarding.path, routes.onboarding.router)
+router.use(routes.resetPassword.path, routes.resetPassword.router)
 
 export default router

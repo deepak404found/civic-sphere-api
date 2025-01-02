@@ -139,7 +139,7 @@ usersRouter.put(
             const result = await insertUser(newUser, localUser)
 
             // if the result is an error throw it
-            if (result! instanceof Error) throw result
+            if (result instanceof Error) throw result
 
             res.status(200).json({
                 message: 'added user',
