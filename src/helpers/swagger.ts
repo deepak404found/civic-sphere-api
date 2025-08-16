@@ -93,7 +93,6 @@ function swaggerDocs(app: Express, port: number) {
             swaggerUi.serve,
             swaggerUi.setup(swaggerSpec, {
                 customSiteTitle: '🏛️ Civic-Sphere-API Documentation',
-                explorer: true,
                 customCss: theme.getBuffer(vars.SWAGGER_THEME as SwaggerThemeNameEnum),
                 customfavIcon: 'https://img.icons8.com/color/48/000000/api-settings.png',
                 swaggerOptions: {
