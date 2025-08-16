@@ -10,10 +10,10 @@ const options: swaggerJsdoc.Options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Civic-Sphere-API',
+            title: '🏛️ Civic-Sphere-API',
             version,
             description:
-                'A Node.js + Express API for managing departments, users, and districts with role-based access and Swagger SDK integration.'
+                'A comprehensive Node.js + Express API for managing civic infrastructure including departments, users, and districts with role-based access control and Swagger SDK integration. This API provides secure authentication with JWT tokens, role-based access control for different user levels (Super Admin, Admin, User), comprehensive department management, user onboarding processes, password reset functionality, and dashboard analytics. Built with TypeScript, PostgreSQL, and Drizzle ORM for robust database operations.'
         },
         components: {
             securitySchemes: {
@@ -32,43 +32,43 @@ const options: swaggerJsdoc.Options = {
         servers: [
             {
                 url: `http://localhost:${vars.PORT}`,
-                description: 'Local Server'
+                description: '🖥️ Local Development Server'
             },
             {
                 url: vars.SWAGGER_DEVELOPMENT_URL,
-                description: 'Development Server'
+                description: '🚀 Development Environment'
             },
             {
                 url: vars.SWAGGER_PRODUCTION_URL,
-                description: 'Production Server'
+                description: '🌍 Production Environment'
             }
         ],
         tags: [
             {
-                name: 'Onboarding',
-                description: 'Onboarding related routes'
-            },
-            {
-                name: 'ResetPassword',
-                description: 'Reset password related routes. User can reset their password using OTP verification'
-            },
-            {
                 name: 'User',
                 description:
-                    'User related routes only for admins and super admins. Super admins can access all users while admins can access only their department users'
+                    'User management operations for admins and super admins. Includes CRUD operations with role-based access control'
             },
             {
                 name: 'Department',
                 description:
-                    'Department related routes only for admins and super admins. Super admins can access all departments while admins can access only their department'
+                    'Department management for civic organizations. Super admins can access all departments while admins manage their own'
             },
             {
                 name: 'Dashboard',
-                description: 'Dashboard related routes only for admins and super admins to get summary according to their accessibilities'
+                description: 'Analytics and reporting endpoints for business intelligence and civic management insights'
+            },
+            {
+                name: 'Onboarding',
+                description: 'User onboarding and account setup processes'
+            },
+            {
+                name: 'ResetPassword',
+                description: 'Password reset functionality using OTP verification for enhanced security'
             }
         ],
         externalDocs: {
-            description: 'Docs in JSON format',
+            description: '📖 OpenAPI Specification (JSON)',
             url: `/${vars.SWAGGER_JSON_PATH}`
         }
     },
@@ -92,9 +92,10 @@ function swaggerDocs(app: Express, port: number) {
             `/${vars.SWAGGER_DOCS_PATH}`,
             swaggerUi.serve,
             swaggerUi.setup(swaggerSpec, {
-                customSiteTitle: 'Civic-Sphere-API Docs',
-                // explorer: true,
+                customSiteTitle: '🏛️ Civic-Sphere-API Documentation',
+                explorer: true,
                 customCss: theme.getBuffer(vars.SWAGGER_THEME as SwaggerThemeNameEnum),
+                customfavIcon: 'https://img.icons8.com/color/48/000000/api-settings.png',
                 swaggerOptions: {
                     persistAuthorization: true,
                     filter: true,

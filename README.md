@@ -161,11 +161,19 @@ Starting server..
 
 ## 📚 API Documentation
 
-### 🌐 **Swagger UI**
-Access interactive API documentation at:
+### 🌐 **Enhanced Swagger UI**
+Access our beautifully styled, interactive API documentation at:
 - **Local Development**: `http://localhost:3001/docs`
 - **Development Environment**: `https://deepak-test.sample.com/docs`
 - **Production Environment**: `https://dk404.sample.com/docs`
+
+✨ **Features:**
+- **🎨 Custom Styling** - Modern, portfolio-worthy design
+- **🔍 Enhanced Readability** - Larger fonts and better spacing
+- **📱 Responsive Design** - Works perfectly on all devices
+- **🎯 Interactive Testing** - Try endpoints directly from the docs
+- **🏷️ Organized Tags** - Logical grouping with emojis for easy navigation
+- **📊 Rich Descriptions** - Comprehensive endpoint documentation
 
 ### 📄 **OpenAPI Specification**
 Get the raw OpenAPI 3.0 spec at:
