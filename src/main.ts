@@ -12,7 +12,7 @@ const createSuperAdmin = async () => {
     try {
         const superAdmin = {
             role: UserRoleEnum.SUPER_ADMIN,
-            department: 'chips-cg',
+            department: 'civic-sphere-admin',
             pass: 'Admin@12345',
             full_name: 'Super admin',
             email: 'admin@mail.com',
@@ -23,10 +23,10 @@ const createSuperAdmin = async () => {
         }
 
         const department: IAddDepartment = {
-            name: 'chips-cg',
-            city: 'raipur',
-            state: 'chhattisgarh',
-            email: 'cg@mail.com'
+            name: 'civic-sphere-admin',
+            city: 'default',
+            state: 'default',
+            email: 'admin@civicsphere.com'
         }
 
         // check if super admin exists

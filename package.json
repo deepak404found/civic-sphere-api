@@ -1,7 +1,7 @@
 {
-    "name": "chips-mis-api-server",
+    "name": "civic-sphere-api",
     "version": "1.0.0",
-    "description": "",
+    "description": "A Node.js + Express API for managing departments, users, and districts with role-based access and Swagger SDK integration.",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,14 +19,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/amansinghtech/Typescript-Template.git"
+        "url": "git+https://github.com/yourusername/civic-sphere-api.git"
     },
-    "author": "Aman Singh",
-    "license": "ISC",
+    "author": "Your Name",
+    "license": "MIT",
     "bugs": {
-        "url": "https://github.com/amansinghtech/Typescript-Template/issues"
+        "url": "https://github.com/yourusername/civic-sphere-api/issues"
     },
-    "homepage": "https://github.com/amansinghtech/Typescript-Template#readme",
+    "homepage": "https://github.com/yourusername/civic-sphere-api#readme",
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
         "@types/cors": "^2.8.17",

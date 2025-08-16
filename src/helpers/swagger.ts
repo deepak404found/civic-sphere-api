@@ -10,9 +10,10 @@ const options: swaggerJsdoc.Options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Civic Sphere API',
+            title: 'Civic-Sphere-API',
             version,
-            description: 'Civic Sphere API Documentation'
+            description:
+                'A Node.js + Express API for managing departments, users, and districts with role-based access and Swagger SDK integration.'
         },
         components: {
             securitySchemes: {
@@ -91,8 +92,8 @@ function swaggerDocs(app: Express, port: number) {
             `/${vars.SWAGGER_DOCS_PATH}`,
             swaggerUi.serve,
             swaggerUi.setup(swaggerSpec, {
-                customSiteTitle: 'Civic Sphere API Docs',
-                explorer: true,
+                customSiteTitle: 'Civic-Sphere-API Docs',
+                // explorer: true,
                 customCss: theme.getBuffer(vars.SWAGGER_THEME as SwaggerThemeNameEnum),
                 swaggerOptions: {
                     persistAuthorization: true,
@@ -123,16 +124,8 @@ function swaggerDocs(app: Express, port: number) {
         logger.info(`🔗 API Base URL: ${baseUrl}`)
         logger.info(`📝 API Documentation: ${baseUrl}/${vars.SWAGGER_DOCS_PATH}`)
         logger.info(`📦 OpenAPI Spec: ${baseUrl}/${vars.SWAGGER_JSON_PATH}`)
-
-        // Console output for better visibility
-        console.log('\n🚀 Server is running!')
-        console.log(`🔗 API Base URL: ${baseUrl}`)
-        console.log(`📝 API Documentation: ${baseUrl}/${vars.SWAGGER_DOCS_PATH}`)
-        console.log(`📦 OpenAPI Spec: ${baseUrl}/${vars.SWAGGER_JSON_PATH}`)
-        console.log('')
     } catch (error) {
         logger.error('Error setting up Swagger documentation:', error)
-        console.error('❌ Failed to setup Swagger documentation:', error)
     }
 }
 
