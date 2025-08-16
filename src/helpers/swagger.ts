@@ -10,9 +10,9 @@ const options: swaggerJsdoc.Options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Chips MIS Docs',
+            title: 'Civic Sphere API',
             version,
-            description: 'Chips MIS API Documentation'
+            description: 'Civic Sphere API Documentation'
         },
         components: {
             securitySchemes: {
@@ -30,7 +30,16 @@ const options: swaggerJsdoc.Options = {
         ],
         servers: [
             {
-                url: `http://localhost:${vars.PORT}`
+                url: `http://localhost:${vars.PORT}`,
+                description: 'Local Server'
+            },
+            {
+                url: vars.SWAGGER_DEVELOPMENT_URL,
+                description: 'Development Server'
+            },
+            {
+                url: vars.SWAGGER_PRODUCTION_URL,
+                description: 'Production Server'
             }
         ],
         tags: [
@@ -59,7 +68,7 @@ const options: swaggerJsdoc.Options = {
         ],
         externalDocs: {
             description: 'Docs in JSON format',
-            url: '/docs.json'
+            url: `/${vars.SWAGGER_JSON_PATH}`
         }
     },
     apis: ['./src/routers/*.routes.ts', './src/schema/*.ts', './src/routers/**/*.openapi.yaml', './src/schema/**/*.openapi.yaml']
@@ -68,26 +77,63 @@ const options: swaggerJsdoc.Options = {
 export const swaggerSpec = swaggerJsdoc(options)
 
 function swaggerDocs(app: Express, port: number) {
-    const theme = new SwaggerTheme()
+    // Check if Swagger should be enabled
+    if (!vars.SWAGGER_ENABLE) {
+        logger.info('Swagger documentation is disabled')
+        return
+    }
 
-    // Swagger page
-    app.use(
-        '/docs',
-        swaggerUi.serve,
-        swaggerUi.setup(swaggerSpec, {
-            customSiteTitle: 'Chips MIS Docs',
-            explorer: true,
-            customCss: theme.getBuffer(vars.SWAGGER_THEME as SwaggerThemeNameEnum)
+    try {
+        const theme = new SwaggerTheme()
+
+        // Swagger page
+        app.use(
+            `/${vars.SWAGGER_DOCS_PATH}`,
+            swaggerUi.serve,
+            swaggerUi.setup(swaggerSpec, {
+                customSiteTitle: 'Civic Sphere API Docs',
+                explorer: true,
+                customCss: theme.getBuffer(vars.SWAGGER_THEME as SwaggerThemeNameEnum),
+                swaggerOptions: {
+                    persistAuthorization: true,
+                    filter: true,
+                    showRequestDuration: true,
+                    syntaxHighlight: {
+                        activated: true,
+                        theme: 'monokai'
+                    },
+                    deepLinking: true,
+                    displayOperationId: false,
+                    defaultModelsExpandDepth: 1,
+                    defaultModelExpandDepth: 1
+                }
+            })
+        )
+
+        // Docs in JSON format
+        app.get(`/${vars.SWAGGER_JSON_PATH}`, (req: Request, res: Response) => {
+            res.setHeader('Content-Type', 'application/json')
+            res.send(swaggerSpec)
         })
-    )
 
-    // Docs in JSON format
-    app.get('/docs.json', (req: Request, res: Response) => {
-        res.setHeader('Content-Type', 'application/json')
-        res.send(swaggerSpec)
-    })
+        // Enhanced logging with server URLs
+        const baseUrl = `http://localhost:${port}`
 
-    logger.info(`Docs available at http://localhost:${port}/docs`)
+        logger.info(`🚀 Server is running!`)
+        logger.info(`🔗 API Base URL: ${baseUrl}`)
+        logger.info(`📝 API Documentation: ${baseUrl}/${vars.SWAGGER_DOCS_PATH}`)
+        logger.info(`📦 OpenAPI Spec: ${baseUrl}/${vars.SWAGGER_JSON_PATH}`)
+
+        // Console output for better visibility
+        console.log('\n🚀 Server is running!')
+        console.log(`🔗 API Base URL: ${baseUrl}`)
+        console.log(`📝 API Documentation: ${baseUrl}/${vars.SWAGGER_DOCS_PATH}`)
+        console.log(`📦 OpenAPI Spec: ${baseUrl}/${vars.SWAGGER_JSON_PATH}`)
+        console.log('')
+    } catch (error) {
+        logger.error('Error setting up Swagger documentation:', error)
+        console.error('❌ Failed to setup Swagger documentation:', error)
+    }
 }
 
 export default swaggerDocs

@@ -88,8 +88,7 @@ async function main() {
     await createSuperAdmin()
 
     app.listen(vars.PORT, () => {
-        logger.info(`Server running on: http://localhost:${vars.PORT} 🚀`)
-
+        // Swagger docs setup and enhanced logging
         swaggerDocs(app, vars.PORT)
     }).on('error', (err) => {
         logger.error('Error starting server', err)
