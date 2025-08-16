@@ -14,8 +14,7 @@
         "eslint": "./node_modules/eslint/bin/eslint.js src/*/**",
         "devStart": "npm-run-all -p build:dev dev",
         "migrate:generate": "drizzle-kit generate && ts-node src/db/migration.ts && drizzle-kit push",
-        "studio": "drizzle-kit studio",
-        "generate:docs": "ts-node src/generateOpenApiDoc.ts"
+        "studio": "drizzle-kit studio"
     },
     "repository": {
         "type": "git",
