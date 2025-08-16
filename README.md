@@ -11,7 +11,7 @@
 
 **A robust, production-ready Node.js + Express API for managing civic infrastructure with role-based access control**
 
-[📚 API Docs](#api-documentation) • [🔧 Setup](#getting-started) • [📖 Features](#-features)
+[📚 API Docs](#api-documentation) • [📱 Postman](#-postman-collection) • [🔧 Setup](#getting-started) • [📖 Features](#-features)
 
 </div>
 
@@ -48,6 +48,7 @@ Civic-Sphere-API is a comprehensive backend solution designed for government and
 ### 🛠️ **Developer Experience**
 - **Swagger Documentation** - Interactive API documentation
 - **OpenAPI 3.0 Spec** - Standard-compliant API specification
+- **Postman Collection** - Ready-to-use API testing collection
 - **SDK Generation** - Auto-generate client libraries
 - **TypeScript Support** - Full type safety and IntelliSense
 - **Comprehensive Logging** - Winston-based logging system
@@ -184,25 +185,68 @@ Get the raw OpenAPI 3.0 spec at:
 ### 🔌 **Core Endpoints**
 
 #### **Authentication**
-- `POST /auth/generate-otp` - Generate OTP for login
-- `POST /auth/verify-otp` - Verify OTP and authenticate
-- `POST /auth/refresh-token` - Refresh JWT tokens
+- `POST /login` - Authenticate with district name and password
+- `POST /resetPassword/generateOtp` - Generate OTP for password reset
+- `POST /resetPassword/verifyOtp` - Verify OTP
+- `POST /resetPassword` - Reset password with new password
 
 #### **Users**
 - `GET /users` - List users (admin/super admin only)
-- `POST /users` - Create new user
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
+- `GET /users/:uid` - Get user by ID
+- `PUT /users/add` - Create new user
+- `PATCH /users/:uid` - Update user
+- `DELETE /users/:uid` - Delete user
 
 #### **Departments**
 - `GET /departments` - List departments
-- `POST /departments` - Create department
-- `PUT /departments/:id` - Update department
+- `GET /departments/:id` - Get department by ID
+- `PUT /departments/add` - Create department
+- `PATCH /departments/:id` - Update department
 - `DELETE /departments/:id` - Delete department
 
 #### **Dashboard**
-- `GET /dashboard/summary` - Get business summary
-- `GET /dashboard/analytics` - Get analytics data
+- `GET /dashboard/summary` - Get business summary and analytics
+
+---
+
+## 📱 **Postman Collection**
+
+### 🚀 **Quick Start with Postman**
+
+We provide a comprehensive Postman collection for easy API testing and development:
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/17055995/2sB3BHkUTB)
+
+**📖 Published Collection**: [Civic Sphere API - Postman Collection](https://documenter.getpostman.com/view/17055995/2sB3BHkUTB)
+
+### ✨ **Collection Features**
+- **🔐 Complete Authentication Flow** - Login, token management, and protected endpoints
+- **👥 User Management** - Full CRUD operations with role-based access
+- **🏢 Department Management** - Department CRUD with location details
+- **📊 Dashboard Analytics** - Business intelligence endpoints
+- **🔑 Password Reset** - OTP-based password reset functionality
+- **🧪 Automated Testing** - Built-in test scripts for validation
+- **🌍 Multi-Environment Support** - Local, dev, and production configurations
+
+### 📋 **What's Included**
+- **Authentication Endpoints** with JWT token management
+- **User Management** with role-based access control
+- **Department Operations** with geographic data
+- **Dashboard Analytics** for business insights
+- **Password Reset** with OTP verification
+- **Sample Data** and environment variables
+- **Test Scripts** for automated validation
+
+### 📚 **For Detailed Documentation**
+For comprehensive Postman collection documentation, setup instructions, and troubleshooting, see:
+**[📖 POSTMAN_COLLECTION_README.md](POSTMAN_COLLECTION_README.md)**
+
+This includes:
+- Step-by-step setup instructions
+- Environment variable configuration
+- Testing workflows and best practices
+- Troubleshooting common issues
+- API endpoint examples and responses
 
 ---
 
